@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Add new OpenStreetMap providers</title>
+
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Add new OpenStreetMap providers</h1>
+
+
+
+<p>This vignette aims to provide a simple guide on adding a new provider to <code>osmextract</code>. Let’ start loading the package:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(osmextract)</a></code></pre></div>
+<p>As of summer 2020, there are several services providing bulk OSM datasets listed <a href="https://wiki.openstreetmap.org/wiki/Processed_data_providers">here</a> and <a href="https://wiki.openstreetmap.org/wiki/Planet.osm#Country_and_area_extracts">here</a>. At the moment, we support the following providers:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">oe_providers</span>()</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co">#&gt; Check the corresponding help pages to read more details about the fields in each database (e.g. ?geofabrik_zones)</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="co">#&gt;   available_providers          database_name number_of_zones number_of_fields</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">#&gt; 1           geofabrik        geofabrik_zones             430               14</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="co">#&gt; 2              bbbike           bbbike_zones             235               10</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="co">#&gt; 3    openstreetmap_fr openstreetmap_fr_zones             835                6</span></a></code></pre></div>
+<p>Check the “Comparing the supported OSM providers” for more details on the existing providers.</p>
+<p>This package is designed to make it easy to add new providers. There are three main steps to add a new provider: creating the zones, adding the provider and documenting it. They are outlined below.</p>
+<div id="adding-a-provider_zones-object-to-the-package" class="section level1">
+<h1>Adding a <code>provider_zones</code> object to the package</h1>
+<p>The first and hardest step is to create an <code>sf</code> object analogous to the <code>test_zones</code> object shown below:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">names</span>(test_zones)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt; [1] &quot;id&quot;            &quot;name&quot;          &quot;parent&quot;        &quot;level&quot;        </span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt; [5] &quot;pbf_file_size&quot; &quot;pbf&quot;           &quot;geometry&quot;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">str</span>(test_zones[, <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">7</span>)])</a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; Classes &#39;sf&#39; and &#39;data.frame&#39;:   2 obs. of  3 variables:</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt;  $ name    : chr  &quot;Isle of Wight&quot; &quot;ITS Leeds&quot;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt;  $ pbf     : chr  &quot;https://github.com/ropensci/osmextract/releases/download/0.0.1/geofabrik_isle-of-wight-latest.osm.pbf&quot; &quot;https://github.com/ropensci/osmextract/raw/master/inst/its-example.osm.pbf&quot;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt;  $ geometry:sfc_GEOMETRY of length 2; first list element: List of 1</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt;   ..$ :List of 1</span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt;   .. ..$ : num [1:7, 1:2] -1.25 -1.03 -1.11 -1.31 -1.66 ...</span></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr  &quot;XY&quot; &quot;MULTIPOLYGON&quot; &quot;sfg&quot;</span></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt;  - attr(*, &quot;sf_column&quot;)= chr &quot;geometry&quot;</span></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co">#&gt;  - attr(*, &quot;agr&quot;)= Factor w/ 3 levels &quot;constant&quot;,&quot;aggregate&quot;,..: NA NA</span></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr  &quot;name&quot; &quot;pbf&quot;</span></a></code></pre></div>
+<p>The output shows the three most important column names:</p>
+<ol style="list-style-type: decimal">
+<li>The zone <code>name</code> (that is used for matching the input <code>place</code>, see <code>oe_match()</code>);</li>
+<li>The URL endpoint where <code>.pbf</code> files associated with each zone can be downloaded;</li>
+<li>The geometry, representing the spatial extent of the dataset.</li>
+</ol>
+<p>The object must also include the fields <code>level</code> and <code>id</code>, which are used, respectively, for spatial matching and updating. See <code>oe_match()</code> and <code>oe_update()</code>.</p>
+<p>The best way to start creating a new <code>_zones</code> object for a new provider is probably by looking at the code we wrote for the first supported provider in <a href="https://github.com/ropensci/osmextract/blob/master/data-raw/geofabrik_zones.R"><code>data-raw/geofabrik_zones.R</code></a>. The following commands will clone this repo and open the relevant file:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">git</span> clone git@github.com:ropensci/osmextract</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="ex">rstudio</span> osmextract/osmextract.Rproj</a></code></pre></div>
+<p>Then in RStudio:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">file.edit</span>(<span class="st">&quot;data-raw/geofabrik_zones.R&quot;</span>)</a></code></pre></div>
+<p>Create a new script to document the code that generates the new object, e.g. for <code>bbbike</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">file.edit</span>(<span class="st">&quot;data-raw/bbbike_zones.R&quot;</span>)</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="co"># or, even better, use</span></a>
+<a class="sourceLine" id="cb6-3" title="3">usethis<span class="op">::</span><span class="kw">use_data_raw</span>(<span class="st">&quot;bbbike_zones&quot;</span>)</a></code></pre></div>
+<p>After you have created the new provider <code>_zones</code> file, it’s time to add the provider to the package.</p>
+</div>
+<div id="adding-the-new-provider-to-the-package" class="section level1">
+<h1>Adding the new provider to the package</h1>
+<p>Once you have created your overview <code>_zones</code> file as outlined in the previous step, you need to modify the following files for the provider to be available for others:</p>
+<ul>
+<li><a href="https://github.com/ropensci/osmextract/blob/master/R/data.R">data.R</a>, where you’ll need to document the new dataset;</li>
+<li><a href="https://github.com/ropensci/osmextract/blob/master/R/globals.R">globals.R</a>, where you’ll need to add the new object name;</li>
+<li><a href="https://github.com/ropensci/osmextract/blob/master/R/providers.R">providers.R</a>, where you’ll need to add the new object name in <code>oe_available_providers()</code> and <code>load_provider_data()</code>.</li>
+</ul>
+</div>
+<div id="documenting-the-provider" class="section level1">
+<h1>Documenting the provider</h1>
+<p>The final step is also the most fun: documenting and using the provider. Add an example, mention it in the README and tell others about what this new provider can do! If you want to ask for help on adding a new provider, feel free to open in a new issue in the <a href="https://github.com/ropensci/osmextract">github repository</a>!</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>This vignette talks through the main steps needed to extend <code>osmextract</code> by adding new OSM data providers. To see the same information in code form, see the PR that implemented the <code>openstreetmap_fr</code> provider here: <a href="https://github.com/ropensci/osmextract/commit/dbf131667a80e5a6837a6c8eb3b967075e1aba16" class="uri">https://github.com/ropensci/osmextract/commit/dbf131667a80e5a6837a6c8eb3b967075e1aba16</a></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
