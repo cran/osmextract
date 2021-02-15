@@ -1,7 +1,7 @@
 Package: osmextract
 Type: Package
 Title: Download and Read OpenStreetMap Data Extracts
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person("Andrea", "Gilardi", email = "andrea.gilardi@unimib.it", role=c("aut", "cre"),
       comment = c(ORCID = "0000-0002-9424-7439")),
@@ -29,7 +29,7 @@ Suggests: testthat, knitr, rmarkdown, covr
 VignetteBuilder: knitr
 Language: en_GB
 NeedsCompilation: no
-Packaged: 2021-02-08 17:10:31 UTC; Utente
+Packaged: 2021-02-15 10:12:58 UTC; Utente
 Author: Andrea Gilardi [aut, cre] (<https://orcid.org/0000-0002-9424-7439>),
   Robin Lovelace [aut] (<https://orcid.org/0000-0001-5679-6536>),
   Barry Rowlingson [ctb] (<https://orcid.org/0000-0002-8586-6625>),
@@ -41,4 +41,4 @@ Author: Andrea Gilardi [aut, cre] (<https://orcid.org/0000-0002-9424-7439>),
     <https://github.com/ropensci/software-review/issues/395>)
 Maintainer: Andrea Gilardi <andrea.gilardi@unimib.it>
 Repository: CRAN
-Date/Publication: 2021-02-11 16:00:02 UTC
+Date/Publication: 2021-02-15 14:10:05 UTC
