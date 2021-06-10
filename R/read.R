@@ -33,15 +33,20 @@
 #'   from = system.file("its-example.osm.pbf", package = "osmextract"),
 #'   to = file.path(tempdir(), "its-example.osm.pbf")
 #' )
+#'
 #' my_pbf = file.path(tempdir(), "its-example.osm.pbf")
 #' oe_read(my_pbf)
-#' oe_read(my_pbf, layer = "points") # Read a new layer
+#'
+#' # Read a new layer
+#' oe_read(my_pbf, layer = "points")
+#'
 #' # The following example shows how to add new tags
-#' names(oe_read(my_pbf, extra_tags = c("oneway", "ref"), quiet = FALSE))
+#' names(oe_read(my_pbf, extra_tags = c("oneway", "ref"), quiet = TRUE))
 #'
 #' # Read an existing .gpkg file. This file was created by oe_read
 #' my_gpkg = file.path(tempdir(), "its-example.gpkg")
 #' oe_read(my_gpkg)
+#'
 #' # You cannot add any layer to an existing .gpkg file but you can extract some
 #' # of the tags in other_tags. Check oe_get_keys() for more details.
 #' names(oe_read(my_gpkg, extra_tags = c("maxspeed"))) # doesn't work
@@ -63,6 +68,10 @@
 #' \dontrun{
 #' oe_read(my_url, provider = "test", quiet = FALSE)
 #' }
+#'
+#' # Remove .pbf and .gpkg files in tempdir
+#' # (since they may interact with other examples)
+#' file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
 oe_read = function(
   file_path,
   layer = "lines",
@@ -79,6 +88,8 @@ oe_read = function(
   extra_tags = NULL,
   force_vectortranslate = FALSE,
   never_skip_vectortranslate = FALSE,
+  boundary = NULL,
+  boundary_type = c("spat", "clipsrc"),
   quiet = FALSE
 ) {
 
@@ -125,9 +136,8 @@ oe_read = function(
     if (layer_clean[[1]] != layer) {
       warning(
         "The query selected a layer which is different from layer argument. ",
-        "We will ignore the layer argument.",
-        call. = FALSE,
-        immediate. = TRUE
+        "We will replace the layer argument.",
+        call. = FALSE
       )
       layer = layer_clean[[1]]
     }
@@ -151,20 +161,26 @@ oe_read = function(
       # The ... arguments in st_read are passed to st_as_sf so I need to add the
       # formals of st_as_sf.
       # See https://github.com/ropensci/osmextract/issues/152
-      union(
+      unique(c(
         names(formals(get("st_read.character", envir = getNamespace("sf")))),
-        names(formals(get("st_as_sf.data.frame", envir = getNamespace("sf"))))
-      )
+        names(formals(get("st_as_sf.data.frame", envir = getNamespace("sf")))),
+        names(formals(get("read_sf", envir = getNamespace("sf"))))
+      ))
     )
   ) {
     warning(
       "The following arguments are probably misspelled: ",
-      setdiff(
-        names(list(...)),
-        names(formals(get("st_read.character", envir = getNamespace("sf"))))
+      paste(
+        setdiff(
+          names(list(...)),
+          union(
+            names(formals(get("st_read.character", envir = getNamespace("sf")))),
+            names(formals(get("st_as_sf.data.frame", envir = getNamespace("sf"))))
+          )
+        ),
+        collapse = " - "
       ),
-      call. = FALSE,
-      immediate. = TRUE
+      call. = FALSE
     )
   }
 
@@ -238,7 +254,7 @@ oe_read = function(
   }
 
   # See https://github.com/ropensci/osmextract/issues/144. The vectortranslate
-  # operation should never be skipped if the user is going to download a new
+  # operation should never be skipped if the user forced the download of a new
   # .osm.pbf file.
   if (isTRUE(force_download)) {
     never_skip_vectortranslate = TRUE
@@ -256,6 +272,8 @@ oe_read = function(
     extra_tags = extra_tags,
     force_vectortranslate = force_vectortranslate,
     never_skip_vectortranslate = never_skip_vectortranslate,
+    boundary = boundary,
+    boundary_type = boundary_type,
     quiet = quiet
   )
 
@@ -263,6 +281,11 @@ oe_read = function(
   # something
   if (isTRUE(download_only)) {
     return(gpkg_file_path)
+  }
+
+  # Add another test since maybe there was an error during the vectortranslate process:
+  if (!file.exists(gpkg_file_path)) {
+    stop("An error occurred during the vectortranslate process", call. = FALSE)
   }
 
   # Read the translated file with sf::st_read

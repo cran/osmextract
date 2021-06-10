@@ -20,6 +20,8 @@ oe_read(
   extra_tags = NULL,
   force_vectortranslate = FALSE,
   never_skip_vectortranslate = FALSE,
+  boundary = NULL,
+  boundary_type = c("spat", "clipsrc"),
   quiet = FALSE
 )
 }
@@ -98,6 +100,16 @@ passed its own \code{.ini} file or vectortranslate options (since, in those case
 it's too difficult to determine if an existing \code{.gpkg} file was generated
 following the same options.)}
 
+\item{boundary}{An \code{sf} or \code{sfc} object that will be used to create a spatial
+filter during the vectortranslate operations. The type of filter can be
+chosen using the argument \code{boundary_type}.}
+
+\item{boundary_type}{A character vector of length 1 specifying the type of
+spatial filter. The \code{spat} filter selects only those features that
+intersect a given area, while \code{clipsrc} also clips the geometries. See the
+examples and check \href{https://gdal.org/programs/ogr2ogr.html}{here} for more
+details.}
+
 \item{quiet}{Boolean. If \code{FALSE}, the function prints informative messages.
 Starting from \code{sf} version
 \href{https://r-spatial.github.io/sf/news/index.html#version-0-9-6-2020-09-13}{0.9.6},
@@ -131,15 +143,20 @@ file.copy(
   from = system.file("its-example.osm.pbf", package = "osmextract"),
   to = file.path(tempdir(), "its-example.osm.pbf")
 )
+
 my_pbf = file.path(tempdir(), "its-example.osm.pbf")
 oe_read(my_pbf)
-oe_read(my_pbf, layer = "points") # Read a new layer
+
+# Read a new layer
+oe_read(my_pbf, layer = "points")
+
 # The following example shows how to add new tags
-names(oe_read(my_pbf, extra_tags = c("oneway", "ref"), quiet = FALSE))
+names(oe_read(my_pbf, extra_tags = c("oneway", "ref"), quiet = TRUE))
 
 # Read an existing .gpkg file. This file was created by oe_read
 my_gpkg = file.path(tempdir(), "its-example.gpkg")
 oe_read(my_gpkg)
+
 # You cannot add any layer to an existing .gpkg file but you can extract some
 # of the tags in other_tags. Check oe_get_keys() for more details.
 names(oe_read(my_gpkg, extra_tags = c("maxspeed"))) # doesn't work
@@ -161,4 +178,8 @@ my_url = "https://github.com/ropensci/osmextract/raw/master/inst/its-example.osm
 \dontrun{
 oe_read(my_url, provider = "test", quiet = FALSE)
 }
+
+# Remove .pbf and .gpkg files in tempdir
+# (since they may interact with other examples)
+file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
 }

@@ -1,6 +1,6 @@
 test_that("oe_match: simplest examples work", {
-  expect_match(oe_match("Italy")$url, "italy")
-  expect_match(oe_match("Leeds", provider = "bbbike")$url, "Leeds")
+  expect_match(oe_match("Italy", quiet = TRUE)$url, "italy")
+  expect_match(oe_match("Leeds", provider = "bbbike", quiet = TRUE)$url, "Leeds")
 })
 
 test_that("oe_match: error with new classes", {
@@ -11,18 +11,18 @@ test_that("oe_match: error with new classes", {
 test_that("oe_match: sfc_POINT objects", {
   # simplest example with geofabrik
   milan_duomo = sf::st_sfc(sf::st_point(c(1514924, 5034552)), crs = 3003)
-  expect_match(oe_match(milan_duomo)$url, "italy")
+  expect_match(oe_match(milan_duomo, quiet = TRUE)$url, "italy")
 
   # simplest example with bbbike
   leeds = sf::st_sfc(sf::st_point(c(430147.8, 433551.5)), crs = 27700)
-  expect_match(oe_match(leeds, provider = "bbbike")$url, "Leeds")
+  expect_match(oe_match(leeds, provider = "bbbike", quiet = TRUE)$url, "Leeds")
 
   # an sfc_POINT object that does not intersect anything
   # the point is in the middle of the atlantic ocean
   ocean = sf::st_sfc(sf::st_point(c(-39.325649, 29.967632)), crs = 4326)
-  expect_error(oe_match(ocean), regexp = "input place does not intersect")
+  expect_error(oe_match(ocean, quiet = TRUE), regexp = "input place does not intersect")
   expect_error(
-    oe_match(ocean, provider = "bbbike"),
+    oe_match(ocean, provider = "bbbike", quiet = TRUE),
     regexp = "input place does not intersect"
   )
 
@@ -35,34 +35,26 @@ test_that("oe_match: sfc_POINT objects", {
   )
   # The point is midway between amsterdam and utrecth, closer to Amsterdam, and
   # it intersects both bboxes
-  expect_message(oe_match(
-    amsterdam_utrecht,
-    provider = "bbbike",
-    quiet = FALSE
-  ))
   expect_match(
-    oe_match(amsterdam_utrecht, provider = "bbbike")$url,
+   suppressMessages(oe_match(amsterdam_utrecht, provider = "bbbike", quiet = TRUE)$url),
     "Amsterdam"
   )
 })
 
 test_that("oe_match: numeric input", {
-  expect_match(oe_match(c(9.1916, 45.4650))$url, "italy")
+  expect_match(oe_match(c(9.1916, 45.4650), quiet = TRUE)$url, "italy")
 })
 
 test_that("oe_match: different providers, match_by or max_string_dist args", {
-  expect_error(oe_match("Italy", provider = "XXX"))
-  expect_error(oe_match("Italy", match_by = "XXX"))
-  expect_match(oe_match("RU", match_by = "iso3166_1_alpha2")$url, "russia")
+  expect_error(oe_match("Italy", provider = "XXX", quiet = TRUE))
+  expect_error(oe_match("Italy", match_by = "XXX", quiet = TRUE))
+  expect_match(oe_match("RU", match_by = "iso3166_1_alpha2", quiet = TRUE)$url, "russia")
 
   # expect_null(oe_match("Isle Wight"))
   # The previous test was removed in #155 since now oe_match calls nominatim servers in
   # case it doesn't find an exact match, so it should never return NULL
-  expect_match(oe_match("Isle Wight", max_string_dist = 3)$url, "isle-of-wight")
+  expect_match(oe_match("Isle Wight", max_string_dist = 3, quiet = TRUE)$url, "isle-of-wight")
   expect_message(oe_match("London", max_string_dist = 3, quiet = FALSE))
-
-  # It returns a warning since Berin is matched both with Benin and Berlin
-  expect_warning(oe_match("Berin"))
 })
 
 test_that("oe_match: Cannot specify more than one place", {
@@ -83,11 +75,18 @@ test_that("oe_match: Cannot specify more than one place", {
   expect_error(oe_match(c(9.1916, 45.4650), c(-1.543794, 53.698968)))
 })
 
-test_that("oe_check_pattern: simplest examples work", {
-  # regexp = NA is used to test that the function runs without any error
-  expect_error(oe_match_pattern("Yorkshire"), regexp = NA)
-  expect_error(oe_match_pattern("Yorkshire", full_row = TRUE), regexp = NA)
-  expect_error(oe_match_pattern("Yorkshire", match_by = "XXX"))
+test_that("oe_match_pattern: simplest examples work", {
+  match_yorkshire = oe_match_pattern("Yorkshire")
+  expect_gte(length(match_yorkshire), 1)
+
+  match_yorkshire = oe_match_pattern("Yorkshire", full_row = TRUE)
+  expect_gte(length(match_yorkshire), 1)
+
+  match_empty_no_place = oe_match_pattern("ABC")
+  expect_length(match_empty_no_place, 0L)
+
+  match_empty_no_field = oe_match_pattern("Yorkshire", match_by = "ABC")
+  expect_length(match_empty_no_field, 0L)
 })
 
 test_that("oe_match can use different providers", {
@@ -98,6 +97,9 @@ test_that("oe_match can use different providers", {
 })
 
 test_that("oe_match looks for a place location online", {
+  skip_on_cran()
+  skip_if_offline()
+
   expect_match(
     oe_match("Olginate", quiet = TRUE)$url,
     "italy/nord-ovest-latest\\.osm\\.pbf"
@@ -110,18 +112,18 @@ test_that("oe_match: error when input place is far from all zones and match_by !
 
 test_that("oe_match: test level parameter", {
   # See https://github.com/ropensci/osmextract/issues/160
-  yak <- c(-120.51084, 46.60156)
+  yak = c(-120.51084, 46.60156)
 
   expect_equal(
-    oe_match(yak, level = 1)$url,
+    oe_match(yak, level = 1, quiet = TRUE)$url,
     "https://download.geofabrik.de/north-america-latest.osm.pbf"
   )
   expect_equal(
-    oe_match(yak)$url,
+    suppressMessages(oe_match(yak, quiet = TRUE)$url),
     "https://download.geofabrik.de/north-america/us/washington-latest.osm.pbf"
   )
   expect_error(
-    oe_match(yak, level = 3),
+    oe_match(yak, level = 3, quiet = TRUE),
     "The input place does not intersect any area at the chosen level."
   )
 })
@@ -132,7 +134,30 @@ test_that("oe_match:sfc objects with multiple places", {
   leeds = sf::st_sfc(sf::st_point(c(430147.8, 433551.5)), crs = 27700) %>%
     sf::st_transform(4326)
   expect_match(
-    oe_match(c(milan_duomo, leeds))$url,
+    oe_match(c(milan_duomo, leeds), quiet = TRUE)$url,
     "https://download.geofabrik.de/europe-latest.osm.pbf"
+  )
+})
+
+test_that("oe_match works with a bbox in input", {
+  # See https://github.com/ropensci/osmextract/issues/185
+  my_bbox = sf::st_bbox(
+    c(xmin = 11.23602, ymin = 47.80478, xmax = 11.88867, ymax = 48.24261),
+    crs = 4326
+  )
+  expect_match(
+    suppressMessages(oe_match(my_bbox))$url,
+    "oberbayern-latest.osm.pbf"
+  )
+})
+
+test_that("oe_match returns a warning message with missing CRS in input place", {
+  # See https://github.com/ropensci/osmextract/issues/185#issuecomment-810378795
+  my_bbox = sf::st_bbox(
+    c(xmin = 11.23602, ymin = 47.80478, xmax = 11.88867, ymax = 48.24261)
+  )
+  expect_warning(
+    suppressMessages(oe_match(my_bbox)),
+    "The input place has no CRS, setting crs = 4326."
   )
 })

@@ -17,39 +17,38 @@
 #'
 #' @details
 #'
-#'   If the input place is specified as a spatial object (either `sf` or `sfc`),
-#'   then the function will return a geographical area that completely contains
-#'   the object (or an error). The argument `level` (which must be specified as
-#'   an integer between 1 and 4, extreme values included) is used to select
-#'   between multiple geographically nested areas. We could roughly say that
-#'   smaller administrative units correspond to higher levels. Check the help
-#'   page of the chosen provider for more details on `level` field. By default,
-#'   `level = NULL`, which means that `oe_match()` will return the area
-#'   corresponding to the highest available level. If there is no geographical
-#'   area at the desired level, then the function will return an error. If there
-#'   are multiple areas at the same `level` intersecting the input place, then
-#'   the function will return the area whose centroid is closest to the input
-#'   place.
+#' If the input place is specified as a spatial object (either `sf` or `sfc`),
+#' then the function will return a geographical area that completely contains
+#' the object (or an error). The argument `level` (which must be specified as an
+#' integer between 1 and 4, extreme values included) is used to select between
+#' multiple geographically nested areas. We could roughly say that smaller
+#' administrative units correspond to higher levels. Check the help page of the
+#' chosen provider for more details on `level` field. By default, `level =
+#' NULL`, which means that `oe_match()` will return the area corresponding to
+#' the highest available level. If there is no geographical area at the desired
+#' level, then the function will return an error. If there are multiple areas at
+#' the same `level` intersecting the input place, then the function will return
+#' the area whose centroid is closest to the input place.
 #'
-#'   If the input place is specified as a character vector and there are
-#'   multiple plausible matches between the input place and the `match_by`
-#'   column, then the function will return a warning and it will select the
-#'   first match. See Examples. On the other hand, if the approximate string
-#'   distance between the input `place` and the best match in `match_by` column
-#'   is greater than `max_string_dist`, then the function will look for exact
-#'   matches (i.e. `max_string_dist = 0`) in the other supported providers. If
-#'   it finds an exact match, then it will return the corresponding URL.
-#'   Otherwise, if `match_by` is equal to `"name"`, then it will try to
-#'   geolocate the input `place` using the [Nominatim
-#'   API](https://nominatim.org/release-docs/develop/api/Overview/), and then it
-#'   will perform a spatial matching operation (see Examples and introductory
-#'   vignette), while, if `match_by != "name"`, then it will return an error.
+#' If the input place is specified as a character vector and there are multiple
+#' plausible matches between the input place and the `match_by` column, then the
+#' function will return a warning and it will select the first match. See
+#' Examples. On the other hand, if the approximate string distance between the
+#' input `place` and the best match in `match_by` column is greater than
+#' `max_string_dist`, then the function will look for exact matches (i.e.
+#' `max_string_dist = 0`) in the other supported providers. If it finds an exact
+#' match, then it will return the corresponding URL. Otherwise, if `match_by` is
+#' equal to `"name"`, then it will try to geolocate the input `place` using the
+#' [Nominatim API](https://nominatim.org/release-docs/develop/api/Overview/),
+#' and then it will perform a spatial matching operation (see Examples and
+#' introductory vignette), while, if `match_by != "name"`, then it will return
+#' an error.
 #'
-#'   The fields `iso3166_1_alpha2` and `iso3166_2` are used by Geofabrik
-#'   provider to perform matching operations using [ISO 3166-1
-#'   alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) and [ISO
-#'   3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) codes. See
-#'   [geofabrik_zones] for more details.
+#' The fields `iso3166_1_alpha2` and `iso3166_2` are used by Geofabrik provider
+#' to perform matching operations using [ISO 3166-1
+#' alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) and [ISO
+#' 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) codes. See
+#' [geofabrik_zones] for more details.
 #'
 #' @examples
 #' # The simplest example:
@@ -106,9 +105,9 @@
 #' # areas during spatial matching
 #' yak = c(-120.51084, 46.60156)
 #' \dontrun{
-#' oe_match(yak, level = 3) # error}
+#' oe_match(yak, level = 3) # error
 #' oe_match(yak, level = 2) # by default, level is equal to the maximum value
-#' oe_match(yak, level = 1)
+#' oe_match(yak, level = 1)}
 
 oe_match = function(place, ...) {
   UseMethod("oe_match")
@@ -123,6 +122,14 @@ oe_match.default = function(place, ...) {
     " Feel free to open a new issue at github.com/ropensci/osmextract",
     call. = FALSE
   )
+}
+
+#' @inheritParams oe_get
+#' @name oe_match
+#' @export
+oe_match.bbox = function(place, ...) {
+  # We just need to convert the bbox to a sfc object
+  oe_match(sf::st_as_sfc(place), ...)
 }
 
 #' @inheritParams oe_get
@@ -148,6 +155,18 @@ oe_match.sfc = function(
   # Load the data associated with the chosen provider.
   provider_data = load_provider_data(provider)
 
+  # Check if place has no CRS (i.e. NA_crs_, see ?st_crs) and, in that case, set
+  # 4326 + raise a warning message.
+  # See https://github.com/ropensci/osmextract/issues/185#issuecomment-810353788
+  # for a discussion.
+  if (is.na(sf::st_crs(place))) {
+    warning(
+      "The input place has no CRS, setting crs = 4326.",
+      call. = FALSE
+    )
+    place = sf::st_set_crs(place, 4326)
+  }
+
   # Check the CRS
   if (sf::st_crs(place) != sf::st_crs(provider_data)) {
     place = sf::st_transform(place, crs = sf::st_crs(provider_data))
@@ -170,27 +189,11 @@ oe_match.sfc = function(
   # If there are multiple matches, we will select the geographical area with
   # the chosen level (or highest level if default).
   if (nrow(matched_zones) > 1L) {
-    if (isFALSE(quiet)) {
-      message(
-        "The input place was matched with multiple geographical areas. "
-      )
-    }
-
     # See https://github.com/ropensci/osmextract/issues/160
     # Check the level parameter and, if NULL, set level = highest level.
     if (is.null(level)) {
       # Add a check to test if all(is.na(matched_zones[["level"]])) ?
       level = max(matched_zones[["level"]], na.rm = TRUE)
-      if (isFALSE(quiet)) {
-        message(
-          "Selecting the smallest administrative unit. ",
-          "Check ?oe_match for more details."
-        )
-      }
-    } else {
-      if (isFALSE(quiet)) {
-        message("Selecting the desired level.")
-      }
     }
 
     # Select the desired area(s)
@@ -204,24 +207,21 @@ oe_match.sfc = function(
   # If, again, there are multiple matches with the same "level", we will select
   # only the area closest to the input place.
   if (nrow(matched_zones) > 1L) {
-    if (isFALSE(quiet)) {
-      message(
-        "The input place was matched with multiple zones at the same level. ",
-        "Check ?oe_match for more details."
-      )
-      message(
-        "Selecting the area whose centroid is closest to the input place."
-      )
-    }
 
-    suppressWarnings({
+    suppressMessages({suppressWarnings({
       nearest_id_centroid = sf::st_nearest_feature(
         place,
         sf::st_centroid(sf::st_geometry(matched_zones))
       )
-    })
+    })})
 
-    matched_zones = matched_zones[nearest_id_centroid,]
+    matched_zones = matched_zones[nearest_id_centroid, ]
+  }
+
+  if (isFALSE(quiet)) {
+    message(
+      "The input place was matched with ", matched_zones[["name"]], ". "
+    )
   }
 
   # Return a list with the URL and the file_size of the matched place
@@ -312,13 +312,6 @@ oe_match.character = function(
   best_match_id = which(matching_dists == min(matching_dists, na.rm = TRUE))
 
   if (length(best_match_id) > 1L) {
-    warning(
-      "The input place was matched with multiple geographical zones: ",
-      paste(provider_data[[match_by]][best_match_id], collapse = " - "),
-      ". Selecting the first match.",
-      call. = FALSE,
-      immediate. = TRUE
-    )
     best_match_id = best_match_id[1L]
   }
   best_matched_place = provider_data[best_match_id, ]
@@ -388,10 +381,6 @@ oe_match.character = function(
       }
 
       place_online = oe_search(place = place)
-      # I added Sys.sleep(1) since the usage policty of OSM nominatim (see
-      # https://operations.osmfoundation.org/policies/nominatim/) requires max 1
-      # request per second.
-      Sys.sleep(1)
       return(
         oe_match(
           place = sf::st_geometry(place_online),
@@ -433,26 +422,26 @@ oe_match.character = function(
 #'
 #' @param pattern Character string representing the pattern that should be
 #'   explored.
-#' @param provider Which provider should be used? Check a summary of all
-#'   available providers with [`oe_providers()`].
 #' @param match_by Column name of the provider's database that will be used to
 #'   find the match.
 #' @param full_row Boolean. Return all columns for the matching rows? `FALSE` by
 #'   default.
 #'
-#' @return A character vector or a subset of the provider's database.
+#' @return A list of character vectors or `sf` objects (according to the value
+#'   of the parameter `full_row`). If no OSM zone can be matched with the input
+#'   string, then the function returns an empty list.
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' oe_match("Yorkshire", quiet = FALSE)}
 #' oe_match_pattern("Yorkshire")
 #'
 #' res = oe_match_pattern("Yorkshire", full_row = TRUE)
-#' sf::st_drop_geometry(res)[1:3]
+#' lapply(res, function(x) sf::st_drop_geometry(x)[, 1:3])
+#'
+#' oe_match_pattern("ABC")
+#' oe_match_pattern("Yorkshire", match_by = "ABC")
 oe_match_pattern = function(
   pattern,
-  provider = "geofabrik",
   match_by = "name",
   full_row = FALSE
 ) {
@@ -463,32 +452,43 @@ oe_match_pattern = function(
       names = names(pattern)
     )
   }
-  # Load the dataset associated with the chosen provider
-  provider_data = load_provider_data(provider)
 
-  # Check that the value of match_by argument corresponds to one of the columns
-  # in provider_data
-  if (match_by %!in% colnames(provider_data)) {
-    stop(
-      "You cannot set match_by = ", match_by,
-      " since it's not one of the columns of the provider dataframe",
-      call. = FALSE
-    )
+  # NB: The argument provider was removed in version 0.3.0
+
+  # Create an empty list that will contain the output
+  matches = list()
+
+  for (id in setdiff(oe_available_providers(), "test")) {
+    # Load the dataset associated with the chosen provider
+    provider_data = load_provider_data(id)
+
+    # Check that the value of match_by argument corresponds to one of the columns
+    # in provider_data
+    if (match_by %!in% colnames(provider_data)) {
+      next()
+    }
+
+    # Extract the appropriate vector
+    match_by_column = provider_data[[match_by]]
+
+    # Then we extract only the elements of the match_by_column that match the
+    # input pattern.
+    match_ID = grep(pattern, match_by_column, ignore.case = TRUE)
+
+    # If full_row is TRUE than return the corresponding row of provider_data,
+    # otherwise just the matched pattern.
+    if (length(match_ID) > 0L) {
+      match = if (isTRUE(full_row)) {
+        provider_data[match_ID, ]
+      } else {
+        match_by_column[match_ID]
+      }
+
+      matches[[id]] = match
+    }
   }
 
-  # Extract the appropriate vector
-  match_by_column = provider_data[[match_by]]
-
-  # Then we extract only the elements of the match_by_column that match the
-  # input pattern.
-  match_ID = grep(pattern, match_by_column, ignore.case = TRUE)
-
-  # If full_row is TRUE than return the corresponding row of provider_data,
-  # otherwise just the matched pattern.
-  if (isTRUE(full_row)) {
-    provider_data[match_ID, ]
-  } else {
-    match_by_column[match_ID]
-  }
+  # Return
+  matches
 }
 

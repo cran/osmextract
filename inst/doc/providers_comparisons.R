@@ -7,7 +7,7 @@ knitr::opts_chunk$set(
 )
 
 # save user's pars
-user_par <- par(no.readonly = TRUE)
+user_par = par(no.readonly = TRUE)
 
 ## -----------------------------------------------------------------------------
 library(osmextract)
@@ -48,14 +48,14 @@ plot(openstreetmap_fr_zones[openstreetmap_fr_zones$parent == "china", "name"], k
 plot(openstreetmap_fr_zones[openstreetmap_fr_zones$parent == "india", "name"], key.pos = NULL, main = NULL)
 
 ## -----------------------------------------------------------------------------
-ids_2 <- openstreetmap_fr_zones$parent %in% "france"
-ids_3 <- openstreetmap_fr_zones$parent %in% openstreetmap_fr_zones$id[ids_2]
+ids_2 = openstreetmap_fr_zones$parent %in% "france"
+ids_3 = openstreetmap_fr_zones$parent %in% openstreetmap_fr_zones$id[ids_2]
 
 plot(openstreetmap_fr_zones[ids_2 | ids_3, "name"], key.pos = NULL, main = NULL)
 
 ## -----------------------------------------------------------------------------
-ids_2 <- openstreetmap_fr_zones$parent %in% "brazil"
-ids_3 <- openstreetmap_fr_zones$parent %in% openstreetmap_fr_zones$id[ids_2]
+ids_2 = openstreetmap_fr_zones$parent %in% "brazil"
+ids_3 = openstreetmap_fr_zones$parent %in% openstreetmap_fr_zones$id[ids_2]
 
 plot(openstreetmap_fr_zones[ids_2 | ids_3, "name"], key.pos = NULL, main = NULL)
 

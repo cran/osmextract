@@ -1,12 +1,9 @@
-# Prepare for the tests
-its_match = oe_match("ITS Leeds", provider = "test")
-its_pbf = oe_download(
-  file_url = its_match$url,
-  file_size = its_match$file_size,
-  download_directory = tempdir(),
-  provider = "test",
-  quiet = TRUE
+# Prepare the tests
+file.copy(
+  system.file("its-example.osm.pbf", package = "osmextract"),
+  file.path(tempdir(), "its-example.osm.pbf")
 )
+its_pbf = file.path(tempdir(), "its-example.osm.pbf")
 
 test_that("oe_vectortranslate: simplest examples work", {
   its_gpkg = oe_vectortranslate(its_pbf, quiet = TRUE)
@@ -14,7 +11,7 @@ test_that("oe_vectortranslate: simplest examples work", {
   file.remove(its_gpkg)
 })
 
-test_that("oe_vectortranslate returns file_path is .gpkg exists", {
+test_that("oe_vectortranslate returns file_path when .gpkg exists", {
   its_gpkg = oe_vectortranslate(its_pbf, quiet = TRUE)
   expect_message(
     oe_vectortranslate(its_pbf),
@@ -44,37 +41,50 @@ test_that("oe_vectortranslate adds new tags to existing file", {
     paste(names(sf::st_read(new_its_gpkg, quiet = TRUE)), collapse = "-"),
     "oneway"
   )
-  file.remove(new_its_gpkg)
+  file.remove(new_its_gpkg) # which points to the same file as its_gpkg
 })
 
-test_that("oe_get_keys: simplest example works", {
-  itsleeds_gpkg = oe_vectortranslate(its_pbf, quiet = TRUE)
-  expect_type(oe_get_keys(itsleeds_gpkg), "character")
-
-  file.remove(itsleeds_gpkg)
-})
-
-test_that("oe_get_keys: returns error with wrong inputs", {
-  expect_error(oe_get_keys("xxx.gpkg")) # file does not exist
-  expect_error(oe_get_keys(its_pbf)) # wrong format
-})
-
-test_that("oe_get_keys stop when there is no other_tags field", {
-  my_vectortranslate <- c(
-    "-f", "GPKG",
-    "-overwrite",
-    "-select", "highway",
-    "lines"
-  )
-  oe_get(
-    "ITS Leeds",
-    vectortranslate_options = my_vectortranslate,
-    download_directory = tempdir()
-  )
-  its <- oe_get("ITS Leeds", download_only = TRUE, download_directory = tempdir())
+test_that("vectortranslate_options are autocompleted", {
   expect_error(
-    oe_get_keys(its),
-    "The input file must have an other_tags field."
+    oe_vectortranslate(
+      its_pbf,
+      quiet = TRUE,
+      vectortranslate_options = c("-t_srs", "EPSG:27700")
+    ),
+    NA
   )
-  file.remove(oe_find("ITS Leeds", provider = "test", download_directory = tempdir()))
+
+  # clean tempdir
+  file.remove(list.files(tempdir(), pattern = "its-example.gpkg", full.names = TRUE))
 })
+
+test_that("vectortranslate is not skipped if force_download is TRUE", {
+  # See https://github.com/ropensci/osmextract/issues/144
+  # I need to download the following files in a new directory since they could
+  # be mixed with previously downloaded files (and hence ruin the tests)
+  small_its_leeds = oe_read(
+    its_pbf,
+    download_directory = tempdir(),
+    vectortranslate_options = c(
+      # the other options should be filled automatically
+      "-where", "highway IN ('service')"
+    ),
+    quiet = TRUE
+  )
+
+  # Download it again
+  its_leeds = oe_read(
+    its_pbf,
+    download_directory = tempdir(),
+    force_vectortranslate = TRUE,
+    quiet = TRUE
+  )
+
+  expect_gte(nrow(its_leeds), nrow(small_its_leeds))
+
+  # clean tempdir
+  file.remove(list.files(tempdir(), pattern = "its-example.gpkg", full.names = TRUE))
+})
+
+# Clean tempdir
+file.remove(list.files(tempdir(), pattern = "its-example", full.names = TRUE))
