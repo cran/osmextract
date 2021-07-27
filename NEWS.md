@@ -1,3 +1,21 @@
+# osmextract 0.3.1
+
+### MAJOR CHANGES
+
+* Added a new (but still experimental) function named `oe_get_network()` to import a road network used by a specific mode of transport. For the moment, we support the following modes of transport: cycling (default), walking, and driving. Check `?oe_get_network` for more details and examples (#218). 
+
+### MINOR CHANGES
+
+* The `layer` argument is now converted to lower case before checking if the required layer is admissible. 
+* Adjusted the code behind `oe_get()` and `oe_vectortranslate()` for `sf` v1.0.2.
+* Remove the call to `suppressMessages()` in `oe_match()` (#217).
+
+### DOCUMENTATION FIXES
+
+* Slightly changed the description of the package. 
+* Added a `.Rd` file documenting the whole package. 
+* Slightly changed the description of parameter `place`. 
+
 # osmextract 0.3.0
 
 ### MAJOR CHANGES
@@ -12,7 +30,8 @@
 ### BUG FIXES
 
 * The parameter `force_vectortranslate` is checked before reading the layers of an existing `gpkg` file. If `force_vectortranslate` is `TRUE`, then `oe_vectortranslate()` doesn't check the existing layers. This is important for user that run `oe_vectortranslate()` after stopping the vectortranslate process.  
-* The arguments `extra_tags` and `osmconf_ini` are not ignored when `vectortranslate_options` is not `NULL` (#182).  
+* The arguments `extra_tags` and `osmconf_ini` are not ignored when `vectortranslate_options` is not `NULL` (#182). 
+* Fix the provider's data objects for `sf` v1.0 (#194). 
 
 ### MINOR IMPROVEMENTS
 
