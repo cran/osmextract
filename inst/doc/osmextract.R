@@ -135,8 +135,16 @@ oe_match(c(9.1916, 45.4650)) # Duomo di Milano using EPSG: 4326
 ## -------------------------------------------------------------------------------------------------
 oe_download_directory()
 
-## -------------------------------------------------------------------------------------------------
-its_pbf = oe_download(its_details$url, provider = "test")
+## ---- include=FALSE-------------------------------------------------------------------------------
+its_pbf = file.path(oe_download_directory(), "test_its-example.osm.pbf")
+file.copy(
+  from = system.file("its-example.osm.pbf", package = "osmextract"), 
+  to = its_pbf, 
+  overwrite = TRUE
+)
+
+## ---- eval = 2------------------------------------------------------------------------------------
+its_pbf = oe_download(its_details$url, provider = "test", quiet = TRUE) # skipped online, run it locally
 list.files(oe_download_directory(), pattern = "pbf|gpkg")
 
 ## -------------------------------------------------------------------------------------------------
@@ -168,9 +176,9 @@ oe_read(its_gpkg)
 ## -------------------------------------------------------------------------------------------------
 oe_read(its_pbf, skip_vectortranslate = TRUE, quiet = FALSE)
 
-## -------------------------------------------------------------------------------------------------
-my_url = "https://github.com/ropensci/osmextract/raw/master/inst/its-example.osm.pbf"
-oe_read(my_url, provider = "test", quiet = FALSE, force_download = TRUE, force_vectortranslate = TRUE)
+## ---- eval = FALSE--------------------------------------------------------------------------------
+#  my_url = "https://github.com/ropensci/osmextract/raw/master/inst/its-example.osm.pbf"
+#  oe_read(my_url, provider = "test", quiet = TRUE, force_download = TRUE, force_vectortranslate = TRUE)
 
 ## -------------------------------------------------------------------------------------------------
 its_lines = oe_get("ITS Leeds")
@@ -259,8 +267,8 @@ its_leeds = oe_get("ITS Leeds", vectortranslate_options = my_vectortranslate, qu
 #  system.time({
 #    portugal1 = oe_get("Portugal", vectortranslate_options = my_vectortranslate)
 #  })
-#    #  user  system elapsed
-#    # 17.39    9.93   25.53
+#  #  user  system elapsed
+#  # 17.39    9.93   25.53
 
 ## ---- eval = FALSE--------------------------------------------------------------------------------
 #  system.time({
@@ -269,8 +277,8 @@ its_leeds = oe_get("ITS Leeds", vectortranslate_options = my_vectortranslate, qu
 #      dplyr::select(osm_id, highway) %>%
 #      dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary'))
 #  })
-#   #   user  system elapsed
-#   # 131.05   28.70  177.03
+#  #   user  system elapsed
+#  # 131.05   28.70  177.03
 #  
 #  nrow(portugal1) == nrow(portugal2)
 #  #> TRUE

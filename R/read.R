@@ -66,8 +66,7 @@
 #' # Please note that if you read from a URL which is not linked to one of the
 #' # supported providers, you need to specify the provider parameter:
 #' \dontrun{
-#' oe_read(my_url, provider = "test", quiet = FALSE)
-#' }
+#' oe_read(my_url, provider = "test", quiet = FALSE)}
 #'
 #' # Remove .pbf and .gpkg files in tempdir
 #' # (since they may interact with other examples)
@@ -191,6 +190,34 @@ oe_read = function(
     # I need the following if to return the .gpkg file path in oe_get
     if (isTRUE(download_only)) {
       return(file_path)
+    }
+
+    # Starting from sf 1.0.2, sf::st_read raises a warning message when both
+    # layer and query arguments are set (while it raises a warning in sf < 1.0.2
+    # when there are multiple layers and the layer argument is not set). See
+    # also https://github.com/r-spatial/sf/issues/1444
+    if (utils::packageVersion("sf") <= "1.0.1") {
+      return(sf::st_read(
+        dsn = file_path,
+        layer = layer,
+        quiet = quiet,
+        ...
+      ))
+    } else {
+      if ("query" %in% names(list(...))) {
+        return(sf::st_read(
+          dsn = file_path,
+          quiet = quiet,
+          ...
+        ))
+      } else {
+        return(sf::st_read(
+          dsn = file_path,
+          layer = layer,
+          quiet = quiet,
+          ...
+        ))
+      }
     }
 
     return(sf::st_read(file_path, layer, quiet = quiet, ...))

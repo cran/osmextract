@@ -30,18 +30,25 @@
 #'   corresponding `.pbf` (and `.gpkg`) files.
 #' @export
 #' @examples
+#' \dontshow{
+#' res = file.copy(
+#'   from = system.file("its-example.osm.pbf", package = "osmextract"),
+#'   to = file.path(tempdir(), "test_its-example.osm.pbf"),
+#'   overwrite = TRUE
+#' )}
 #' res = oe_get("ITS Leeds", quiet = TRUE, download_directory = tempdir())
 #' oe_find("ITS Leeds", provider = "test", download_directory = tempdir())
 #'
 #' \dontrun{
-#'   oe_find("Isle of Wight", download_directory = tempdir())
-#'   oe_find("Malta", download_if_missing = TRUE, download_directory = tempdir())
-#'   oe_find(
-#'     "Leeds",
-#'     provider = "bbbike",
-#'     download_if_missing = TRUE,
-#'     download_directory = tempdir()
-#'   )}
+#' oe_find("Isle of Wight", download_directory = tempdir())
+#' oe_find("Malta", download_if_missing = TRUE, download_directory = tempdir())
+#' oe_find(
+#'   "Leeds",
+#'   provider = "bbbike",
+#'   download_if_missing = TRUE,
+#'   download_directory = tempdir()
+#' )}
+#'
 #' # Remove .pbf and .gpkg files in tempdir
 #' # (since they may interact with other examples)
 #' file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
@@ -87,12 +94,11 @@ oe_find = function(
   }
 
   if (download_if_missing) {
-    if (isFALSE(quiet)) {
-      message(
-        "No file associated with that place name could be found.\n",
-        "Trying to download osm data with oe_get()."
-      )
-    }
+    oe_message(
+      "No file associated with that place name could be found.\n",
+      "Trying to download osm data with oe_get().",
+      quiet = quiet
+    )
     oe_get(
       place,
       download_directory = download_directory,
@@ -118,5 +124,3 @@ oe_find = function(
     call. = FALSE
   )
 }
-
-

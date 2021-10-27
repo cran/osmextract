@@ -37,28 +37,26 @@
 #'
 #' @examples
 #' its_match = oe_match("ITS Leeds", quiet = TRUE)
+#'
+#' \dontrun{
 #' oe_download(
 #'   file_url = its_match$url,
 #'   file_size = its_match$file_size,
 #'   provider = "test",
 #'   download_directory = tempdir()
 #' )
-#' \dontrun{
-#'   iow_url = oe_match("Isle of Wight")
-#'   oe_download(
-#'     file_url = iow_url$url,
-#'     file_size = iow_url$file_size,
-#'     download_directory = tempdir()
-#'   )
-#'   Sucre_url = oe_match("Sucre", provider = "bbbike")
-#'   oe_download(
-#'     file_url = Sucre_url$url,
-#'     file_size = Sucre_url$file_size,
-#'     download_directory = tempdir()
-#'   )}
-#' # Remove .pbf and .gpkg files in tempdir
-#' # (since they may interact with other examples)
-#' file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
+#' iow_url = oe_match("Isle of Wight")
+#' oe_download(
+#'   file_url = iow_url$url,
+#'   file_size = iow_url$file_size,
+#'   download_directory = tempdir()
+#' )
+#' Sucre_url = oe_match("Sucre", provider = "bbbike")
+#' oe_download(
+#'   file_url = Sucre_url$url,
+#'   file_size = Sucre_url$file_size,
+#'   download_directory = tempdir()
+#' )}
 oe_download = function(
   file_url,
   provider = NULL,
@@ -98,17 +96,15 @@ oe_download = function(
   # return the file_path. Otherwise we download it after checking for the
   # file_size.
   if (file.exists(file_path) && !isTRUE(force_download)) {
-    if (isFALSE(quiet)) {
-      message(
+    oe_message(
       "The chosen file was already detected in the download directory. ",
-      "Skip downloading."
-      )
-    }
+      "Skip downloading.",
+      quiet = quiet
+    )
     return(file_path)
   }
 
   if (!file.exists(file_path) || isTRUE(force_download)) {
-
     # If working in interactive session and file_size > max_file_size, then we
     # double check if we really want to download the file.
     continue = 1L
@@ -133,16 +129,17 @@ oe_download = function(
       stop("Aborted by user.")
     }
 
-    utils::download.file(
+    resp = httr::GET(
       url = file_url,
-      destfile = file_path,
-      mode = "wb",
-      quiet = quiet
+      if (isFALSE(quiet)) httr::progress(),
+      # if (isFALSE(quiet)) httr::verbose(),
+      httr::write_disk(file_path, overwrite = TRUE),
+      httr::timeout(300L)
     )
 
-    if (isFALSE(quiet)) {
-      message("File downloaded!")
-    }
+    httr::stop_for_status(resp, "download data from the provider")
+
+    oe_message("File downloaded!", quiet = quiet)
   }
 
   file_path

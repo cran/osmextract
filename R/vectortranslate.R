@@ -29,7 +29,7 @@
 #'   reads and processes a `.osm.pbf` file. More precisely, several operations
 #'   that GDAL performs on the input `.osm.pbf` file are governed by a `CONFIG`
 #'   file, that can be checked at the following
-#'   [link](https://github.com/OSGeo/gdal/blob/master/gdal/data/osmconf.ini).
+#'   [link](https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini).
 #'   The basic components of OSM data are called
 #'   [*elements*](https://wiki.openstreetmap.org/wiki/Elements) and they are
 #'   divided into *nodes*, *ways* or *relations*, so, for example, the code at
@@ -116,8 +116,12 @@
 #' @examples
 #' # First we need to match an input zone with a .osm.pbf file
 #' its_match = oe_match("ITS Leeds")
-#'
-#' # The we can download the .osm.pbf files
+#' \dontshow{file.copy(
+#'   from = system.file("its-example.osm.pbf", package = "osmextract"),
+#'   to = file.path(tempdir(), "test_its-example.osm.pbf"),
+#'   overwrite = TRUE
+#' )}
+#' # The we can download the .osm.pbf file (is it was not already downloaded)
 #' its_pbf = oe_download(
 #'   file_url = its_match$url,
 #'   file_size = its_match$file_size,
@@ -184,7 +188,7 @@ oe_vectortranslate = function(
     is.null(layer) ||
     is.na(layer) ||
     # I need the following condition to check that the function
-    # get_ini_layer_defaults does not return NULL
+    # get_id_layer does not return NULL
     tolower(layer) %!in% c(
       "points", "lines", "multipolygons", "multilinestrings", "other_relations"
     )
@@ -224,9 +228,7 @@ oe_vectortranslate = function(
   if (file.exists(gpkg_file_path) && isFALSE(force_vectortranslate)) {
     if (layer %!in% sf::st_layers(gpkg_file_path)[["name"]]) {
       # Try to add the new layer from the .osm.pbf file to the .gpkg file
-      if (isFALSE(quiet)) {
-        message("Adding a new layer to the .gpkg file")
-      }
+      oe_message("Adding a new layer to the .gpkg file", quiet = quiet)
 
       force_vectortranslate = TRUE
     }
@@ -282,12 +284,11 @@ oe_vectortranslate = function(
   # If the gpgk file already exists and force_vectortranslate is FALSE then we
   # raise a message and return the path of the .gpkg file.
   if (file.exists(gpkg_file_path) && isFALSE(force_vectortranslate)) {
-    if (isFALSE(quiet)) {
-      message(
-        "The corresponding gpkg file was already detected. ",
-        "Skip vectortranslate operations."
-      )
-    }
+    oe_message(
+      "The corresponding gpkg file was already detected. ",
+      "Skip vectortranslate operations.",
+      quiet = quiet
+    )
     return(gpkg_file_path)
   }
 
@@ -310,7 +311,7 @@ oe_vectortranslate = function(
   if (is.null(osmconf_ini)) {
     # The file osmconf.ini stored in the package is the default osmconf.ini used
     # by GDAL at stored at the following link:
-    # https://github.com/OSGeo/gdal/blob/master/gdal/data/osmconf.ini
+    # https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini
     # It was saved on the 9th of July 2020.
     osmconf_ini = system.file("osmconf.ini", package = "osmextract")
   }
@@ -323,15 +324,11 @@ oe_vectortranslate = function(
     osmconf_ini == system.file("osmconf.ini", package = "osmextract")
   ) {
     temp_ini = readLines(osmconf_ini)
-    id_old = grep(
-      paste0(
-        "attributes=", paste(get_ini_layer_defaults(layer), collapse = ",")
-      ),
-      temp_ini
-    )
-    temp_ini[[id_old]] = paste(
-      c(temp_ini[[id_old]], extra_tags),
-      collapse = ","
+    id_old = get_id_layer(layer)
+    fields_old = get_fields_default(layer)
+    temp_ini[[id_old]] = paste0(
+      "attributes=",
+      paste(unique(c(fields_old, extra_tags)), collapse = ",")
     )
     temp_ini_file = tempfile(fileext = ".ini")
     writeLines(temp_ini, con = temp_ini_file)
@@ -418,11 +415,10 @@ oe_vectortranslate = function(
     }
   }
 
-  if (isFALSE(quiet)) {
-    message(
-      "Start with the vectortranslate operations on the input file!"
-    )
-  }
+  oe_message(
+    "Start with the vectortranslate operations on the input file!",
+    quiet = quiet
+  )
 
   # Now we can apply the vectortranslate operation from gdal_utils: See
   # https://github.com/ropensci/osmextract/issues/150 for a discussion on
@@ -435,17 +431,26 @@ oe_vectortranslate = function(
     quiet = quiet
   )
 
-  if (isFALSE(quiet)) {
-    message(
-      "Finished the vectortranslate operations on the input file!"
-    )
-  }
+  oe_message(
+    "Finished the vectortranslate operations on the input file!",
+    quiet = quiet
+  )
 
   # and return the path of the gpkg file
   gpkg_file_path
 }
 
-get_ini_layer_defaults = function(layer) {
+get_id_layer = function(layer) {
+  default_id = list(
+    points = 33L,
+    lines = 53L,
+    multipolygons = 85L,
+    multilinestrings = 103L,
+    other_relations = 121L
+  )
+  default_id[[layer]]
+}
+get_fields_default = function(layer) {
   def_layers = list(
     points = c(
       "name",

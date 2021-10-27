@@ -104,7 +104,7 @@ The arguments \code{osmconf_ini} and \code{extra_tags} are used to modify how GD
 reads and processes a \code{.osm.pbf} file. More precisely, several operations
 that GDAL performs on the input \code{.osm.pbf} file are governed by a \code{CONFIG}
 file, that can be checked at the following
-\href{https://github.com/OSGeo/gdal/blob/master/gdal/data/osmconf.ini}{link}.
+\href{https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini}{link}.
 The basic components of OSM data are called
 \href{https://wiki.openstreetmap.org/wiki/Elements}{\emph{elements}} and they are
 divided into \emph{nodes}, \emph{ways} or \emph{relations}, so, for example, the code at
@@ -181,8 +181,12 @@ the vectortranslate process.
 \examples{
 # First we need to match an input zone with a .osm.pbf file
 its_match = oe_match("ITS Leeds")
-
-# The we can download the .osm.pbf files
+\dontshow{file.copy(
+  from = system.file("its-example.osm.pbf", package = "osmextract"),
+  to = file.path(tempdir(), "test_its-example.osm.pbf"),
+  overwrite = TRUE
+)}
+# The we can download the .osm.pbf file (is it was not already downloaded)
 its_pbf = oe_download(
   file_url = its_match$url,
   file_size = its_match$file_size,

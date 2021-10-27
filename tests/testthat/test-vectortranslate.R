@@ -20,17 +20,69 @@ test_that("oe_vectortranslate returns file_path when .gpkg exists", {
   file.remove(its_gpkg)
 })
 
-test_that("oe_vectortranslate adds new tags", {
+test_that("oe_vectortranslate succesfully adds new tags", {
+  # Check all layers, ref https://github.com/ropensci/osmextract/issues/229
+  # Check points:
   its_gpkg = oe_vectortranslate(
     its_pbf,
+    layer = "points",
+    extra_tags = "crossing",
+    force_vectortranslate = TRUE,
+    quiet = TRUE
+  )
+  expect_match(
+    paste(names(sf::st_read(its_gpkg, "points", quiet = TRUE)), collapse = "-"),
+    "crossing"
+  )
+  # Check lines:
+  its_gpkg = oe_vectortranslate(
+    its_pbf,
+    layer = "lines",
     extra_tags = "oneway",
     force_vectortranslate = TRUE,
     quiet = TRUE
   )
   expect_match(
-    paste(names(sf::st_read(its_gpkg, quiet = TRUE)), collapse = "-"),
+    paste(names(sf::st_read(its_gpkg, "lines", quiet = TRUE)), collapse = "-"),
     "oneway"
   )
+  # Check multilinestrings :
+  its_gpkg = oe_vectortranslate(
+    its_pbf,
+    layer = "multilinestrings",
+    extra_tags = "operator",
+    force_vectortranslate = TRUE,
+    quiet = TRUE
+  )
+  expect_match(
+    paste(names(sf::st_read(its_gpkg, "multilinestrings", quiet = TRUE)), collapse = "-"),
+    "operator"
+  )
+  # Check multipolygons:
+  its_gpkg = oe_vectortranslate(
+    its_pbf,
+    layer = "multipolygons",
+    extra_tags = "foot",
+    force_vectortranslate = TRUE,
+    quiet = TRUE
+  )
+  expect_match(
+    paste(names(sf::st_read(its_gpkg, "multipolygons", quiet = TRUE)), collapse = "-"),
+    "foot"
+  )
+  # Check other_relations:
+  its_gpkg = oe_vectortranslate(
+    its_pbf,
+    layer = "other_relations",
+    extra_tags = "site",
+    force_vectortranslate = TRUE,
+    quiet = TRUE
+  )
+  expect_match(
+    paste(names(sf::st_read(its_gpkg, "other_relations", quiet = TRUE)), collapse = "-"),
+    "site"
+  )
+
   file.remove(its_gpkg)
 })
 
@@ -42,6 +94,22 @@ test_that("oe_vectortranslate adds new tags to existing file", {
     "oneway"
   )
   file.remove(new_its_gpkg) # which points to the same file as its_gpkg
+})
+
+test_that("oe_vectortranslate returns no warning with duplicated field in extra_tags", {
+  # The idea is that the user may request one or more fields that are already
+  # included in the default ones. In that case, GDAL returns a message like:
+  # GDAL Message 1: Field 'natural' already exists. Renaming it as 'natural2'.
+  # After the following discussion
+  # https://github.com/ropensci/osmextract/issues/229#issuecomment-941002791 I
+  # included a call to unique to filter the duplicated fields.
+  expect_warning(
+    object = {
+    its_gpkg = oe_vectortranslate(its_pbf, quiet = TRUE, extra_tags = c("highway", "barrier", "oneway"))
+    },
+    regexp = NA
+  )
+  file.remove(its_gpkg) # which points to the same file as its_gpkg
 })
 
 test_that("vectortranslate_options are autocompleted", {

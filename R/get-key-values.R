@@ -60,8 +60,15 @@
 #' @export
 #'
 #' @examples
-#' # Load an OSM extract
-#' its_path = oe_get("ITS Leeds", download_only = TRUE)
+#' # Copy ITS file to tempdir so that the examples do not require internet
+#' # connection. You can skip the next few lines (and start directly with
+#' # oe_get_keys) when running the examples ocally.
+#' its_pbf = file.path(tempdir(), "test_its-example.osm.pbf")
+#' file.copy(
+#'   from = system.file("its-example.osm.pbf", package = "osmextract"),
+#'   to = its_pbf,
+#'   overwrite = TRUE
+#' )
 #'
 #' # Get keys
 #' oe_get_keys("ITS Leeds")
@@ -76,21 +83,24 @@
 #' oe_get_keys("ITS Leeds", values = TRUE)["surface"]
 #'
 #' # Get keys from an existing sf object
+#' \dontrun{
 #' its = oe_get("ITS Leeds")
-#' oe_get_keys(its, values = TRUE)
+#' oe_get_keys(its, values = TRUE)}
 #'
 #' # Get keys from a character vector pointing to a file (might be faster than
 #' # reading the complete file)
+#' its_path = oe_get("ITS Leeds", download_only = TRUE, download_directory = tempdir())
 #' oe_get_keys(its_path, values = TRUE)
 #'
 #' # Add a key to an existing .gpkg file without repeating the
 #' # vectortranslate operations
+#' \dontrun{
 #' colnames(its)
 #' colnames(oe_read(
 #'   its_path,
 #'   query = "SELECT *, hstore_get_value(other_tags, 'oneway') AS oneway FROM lines",
 #'   quiet = TRUE
-#' ))
+#' ))}
 #'
 #' # Remove .pbf and .gpkg files in tempdir
 #' # (since they may interact with other examples)

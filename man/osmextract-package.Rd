@@ -4,10 +4,11 @@
 \name{osmextract-package}
 \alias{osmextract}
 \alias{osmextract-package}
-\title{osmextract: Download and Import Open Stree tMap Data Extracts}
+\title{osmextract: Download and Import Open Street Map Data Extracts}
 \description{
-Match, download, convert and import Open Street Map data extracts 
-    obtained from several providers.
+\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+
+Match, download, convert and import Open Street Map data extracts obtained from several providers.
 }
 \seealso{
 Useful links:
