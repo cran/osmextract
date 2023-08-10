@@ -117,11 +117,13 @@ oe_match = function(place, ...) {
 #' @name oe_match
 #' @export
 oe_match.default = function(place, ...) {
-  stop(
-    "At the moment there is no support for matching objects of class ",
-    class(place)[1], ".",
-    " Feel free to open a new issue at github.com/ropensci/osmextract",
-    call. = FALSE
+  oe_stop(
+    .subclass = "oe_match_NoSupportForClass",
+    message = paste0(
+      "At the moment there is no support for matching objects of class ",
+      class(place)[1], ".",
+      " Feel free to open a new issue at github.com/ropensci/osmextract"
+    )
   )
 }
 
@@ -184,7 +186,10 @@ oe_match.sfc = function(
 
   # Check that the input zone intersects at least 1 area
   if (nrow(matched_zones) == 0L) {
-    stop("The input place does not intersect any area for the chosen provider.")
+    oe_stop(
+      .subclass = "oe_match_noIntersectProvider",
+      message = "The input place does not intersect any area for the chosen provider.",
+    )
   }
 
   # If there are multiple matches, we will select the geographical area with
@@ -201,7 +206,10 @@ oe_match.sfc = function(
     matched_zones = matched_zones[matched_zones[["level"]] == level, ]
 
     if (nrow(matched_zones) == 0L) {
-      stop("The input place does not intersect any area at the chosen level.")
+      oe_stop(
+        .subclass = "oe_match_noIntersectLevel",
+        message = "The input place does not intersect any area at the chosen level."
+      )
     }
   }
 
@@ -219,7 +227,8 @@ oe_match.sfc = function(
 
   oe_message(
     "The input place was matched with ", matched_zones[["name"]], ". ",
-    quiet = quiet
+    quiet = quiet,
+    .subclass = "oe_match_sfcInputMatchedWith"
   )
 
   # Return a list with the URL and the file_size of the matched place
@@ -243,11 +252,13 @@ oe_match.numeric = function(
   # In this case I just need to build the appropriate object and create a
   # wrapper around oe_match.sfc_POINT
   if (length(place) != 2L) {
-    stop(
-      "You need to provide a pair of coordinates and you passed as input",
-      " a vector of length ",
-      length(place),
-      call. = FALSE
+    oe_stop(
+      .subclass = "oe_match_placeLength2",
+      message = paste0(
+        "You need to provide a pair of coordinates and you passed as input",
+        " a numeric vector of length ",
+        length(place)
+      )
     )
   }
 
@@ -270,11 +281,13 @@ oe_match.character = function(
   ) {
   # For the moment we support only length-one character vectors
   if (length(place) > 1L) {
-    stop(
-      "At the moment we support only length-one character vectors for",
-      " 'place' parameter. Feel free to open a new issue at ",
-      "https://github.com/ropensci/osmextract",
-      call. = FALSE
+    oe_stop(
+      .subclass = "oe_match_characterPlaceLengthOne",
+      message = paste0(
+        "At the moment we support only length-one character vectors for",
+        " 'place' parameter. Feel free to open a new issue at ",
+        "https://github.com/ropensci/osmextract"
+      )
     )
   }
 
@@ -289,10 +302,12 @@ oe_match.character = function(
   # Check that the value of match_by argument corresponds to one of the columns
   # in provider_data
   if (match_by %!in% colnames(provider_data)) {
-    stop(
-      "You cannot set match_by = ", match_by,
-      " since it's not one of the columns of the provider dataframe",
-      call. = FALSE
+    oe_stop(
+      .subclass = "oe_match_chosenColumnDoesNotExist",
+      message = paste0(
+        "You cannot set match_by = ", match_by,
+        " since that's not one of the columns of the provider dataframe."
+      )
     )
   }
 
@@ -331,7 +346,8 @@ oe_match.character = function(
       " and provider = ", provider, ". ",
       "Best match is ", best_matched_place[[match_by]], ".",
       " \nChecking the other providers.",
-      quiet = quiet
+      quiet = quiet,
+      .subclass = "oe_match_CheckingTheOtherProviders"
     )
 
     # 2. Check the other providers and, if there is an exact match, just return
@@ -355,8 +371,17 @@ oe_match.character = function(
         "An exact string match was found using provider = ",
         other_provider,
         ".",
-        quiet = quiet
+        quiet = quiet,
+        .subclass = "oe_match_exactStringFound"
       )
+
+      # If oe_match finds an exact match in one of the "other" providers and
+      # oe_match is called from another function (i.e. the parent.frame is not
+      # the global env), then we should also redefine the provider argument in
+      # the calling env. See https://github.com/ropensci/osmextract/issues/245
+      if (!identical(parent.frame(), .GlobalEnv)) {
+        assign("provider", other_provider, envir = parent.frame())
+      }
 
       return(
        oe_match(
@@ -369,14 +394,15 @@ oe_match.character = function(
       )
     }
 
-    # 3. Otherwise, if match_by == name (since I think it doesn't make sense to
+    # 3. Otherwise, if match_by == "name" (since I think it doesn't make sense to
     # use Nominatim with other fields), then we can use oe_search to look for
     # the lat/long coordinates of the input place
     if (match_by == "name") {
       oe_message(
         "No exact match found in any OSM provider data.",
         " Searching for the location online.",
-        quiet = quiet
+        quiet = quiet,
+        .subclass = "oe_match_SearchingLocationOnline"
       )
 
       place_online = oe_search(place = place)
@@ -390,19 +416,22 @@ oe_match.character = function(
     }
 
     # 4. Return an error
-    stop(
-      "No tolerable match was found. ",
-      "You should try increasing the max_string_dist parameter, ",
-      "look for a closer match in another provider ",
-      "or consider using a different match_by variable.",
-      call. = FALSE
+    oe_stop(
+      .subclass = "oe_match_noTolerableMatchFound",
+      message = paste0(
+        "No tolerable match was found. ",
+        "You should try increasing the max_string_dist parameter, ",
+        "look for a closer match in another provider ",
+        "or consider using a different match_by variable."
+      )
     )
   }
 
   oe_message(
     "The input place was matched with: ",
     best_matched_place[[match_by]],
-    quiet = quiet
+    quiet = quiet,
+    .subclass = "oe_match_characterinputmatchedWith"
   )
 
   result = list(
@@ -414,16 +443,16 @@ oe_match.character = function(
 
 #' Check patterns in the provider's databases
 #'
-#' This function is used to explore the provider's databases and look for
-#' patterns. This function can be useful in combination with [`oe_match()`] and
-#' [`oe_get()`] for an easy match. See Examples.
+#' This function is used to explore all provider's databases and look for
+#' matches. This function can be useful in combination with [`oe_match()`] and
+#' [`oe_get()`] for an exploratory analysis and an easy match. See Examples.
 #'
-#' @param pattern Character string representing the pattern that should be
-#'   explored.
-#' @param match_by Column name of the provider's database that will be used to
-#'   find the match.
-#' @param full_row Boolean. Return all columns for the matching rows? `FALSE` by
-#'   default.
+#' @param pattern Description of the pattern. Can be either a length-1 character
+#'   vector, an `sf`/`sfc`/`bbox` object, or a numeric vector of coordinates
+#'   with length 2. In the last case, it is assumed that the EPSG code is 4326
+#'   specified as c(LON, LAT), while you can use any CRS with `sf`/`sfc`/`bbox`
+#'   objects.
+#' @param ... arguments passed to other methods
 #'
 #' @return A list of character vectors or `sf` objects (according to the value
 #'   of the parameter `full_row`). If no OSM zone can be matched with the input
@@ -436,23 +465,115 @@ oe_match.character = function(
 #' res = oe_match_pattern("Yorkshire", full_row = TRUE)
 #' lapply(res, function(x) sf::st_drop_geometry(x)[, 1:3])
 #'
-#' oe_match_pattern("ABC")
-#' oe_match_pattern("Yorkshire", match_by = "ABC")
-oe_match_pattern = function(
+#' oe_match_pattern(c(9, 45)) # long/lat for Milan, Italy
+oe_match_pattern = function(pattern, ...) {
+  UseMethod("oe_match_pattern")
+}
+
+#' @name oe_match_pattern
+#' @export
+oe_match_pattern.numeric = function(
   pattern,
-  match_by = "name",
-  full_row = FALSE
+  full_row = FALSE,
+  ...
 ) {
-  # Check that the input pattern is a character vector
-  if (!is.character(pattern)) {
-    pattern = structure( # taken from base::grep
-      as.character(pattern),
-      names = names(pattern)
+  if (length(pattern) != 2L) {
+    oe_stop(
+      .subclass = "oe_match_pattern-numericInputLengthNe2",
+      message = paste0(
+        "You need to provide a pair of coordinates and you passed as input",
+        " a vector of length ",
+        length(pattern)
+      )
     )
   }
 
-  # NB: The argument provider was removed in version 0.3.0
+  # Build the sfc_POINT object
+  pattern = sf::st_sfc(sf::st_point(pattern), crs = 4326)
 
+  oe_match_pattern(pattern, full_row = full_row , ...)
+}
+
+#' @name oe_match_pattern
+#' @export
+oe_match_pattern.sf = function(
+  pattern,
+  full_row = FALSE,
+  ...
+) {
+  oe_match_pattern(sf::st_geometry(pattern), full_row = full_row, ...)
+}
+
+#' @name oe_match_pattern
+#' @export
+oe_match_pattern.bbox = function(
+  pattern,
+  full_row = FALSE,
+  ...
+) {
+  oe_match_pattern(sf::st_as_sfc(pattern), full_row = full_row, ...)
+}
+
+#' @name oe_match_pattern
+#' @export
+oe_match_pattern.sfc = function(
+  pattern,
+  full_row = FALSE,
+  ...
+) {
+  # Create an empty list that will contain the output
+  matches = list()
+
+  # If there is more than one sfg object, I will combine them
+  if (length(pattern) > 1L) {
+    pattern = sf::st_combine(pattern)
+  }
+
+  if (is.na(sf::st_crs(pattern))) {
+    warning(
+      "The input has no CRS, setting crs = 4326.",
+      call. = FALSE
+    )
+    pattern = sf::st_set_crs(pattern, 4326)
+  }
+
+  for (id in setdiff(oe_available_providers(), "test")) {
+    # Load provider
+    provider_data = load_provider_data(id)
+
+    # Check the CRS
+    if (sf::st_crs(pattern) != sf::st_crs(provider_data)) {
+      pattern = sf::st_transform(pattern, crs = sf::st_crs(provider_data))
+    }
+
+    # Match and add to list
+    match = provider_data[pattern, "name", op = sf::st_contains]
+    if (NROW(match)) {
+      if (!full_row) {
+        match = match[["name"]]
+      }
+      matches[[id]] = match
+    }
+  }
+
+  matches
+}
+
+#' @param match_by Name of the column in the provider's database that will be
+#'   used to find the match in case of character input. In all the other cases,
+#'   the match is performed using a spatial overlay operation and the output
+#'   returns the values stored in the `name` column (or even the full `sf`
+#'   object when `full_row` is `TRUE`).
+#' @param full_row Boolean. Return all columns for the matching rows? `FALSE` by
+#'   default.
+#' @name oe_match_pattern
+#' @export
+oe_match_pattern.character = function(
+  pattern,
+  match_by = "name",
+  full_row = FALSE,
+  ...
+) {
   # Create an empty list that will contain the output
   matches = list()
 

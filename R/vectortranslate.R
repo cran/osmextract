@@ -115,13 +115,19 @@
 #'
 #' @examples
 #' # First we need to match an input zone with a .osm.pbf file
-#' its_match = oe_match("ITS Leeds")
-#' \dontshow{file.copy(
+#' (its_match = oe_match("ITS Leeds"))
+#'
+#' # Copy ITS file to tempdir so that the examples do not require internet
+#' # connection. You can skip the next 3 lines (and start directly with
+#' # oe_download()) when running the examples locally.
+#'
+#' file.copy(
 #'   from = system.file("its-example.osm.pbf", package = "osmextract"),
 #'   to = file.path(tempdir(), "test_its-example.osm.pbf"),
 #'   overwrite = TRUE
-#' )}
-#' # The we can download the .osm.pbf file (is it was not already downloaded)
+#' )
+#'
+#' # The we can download the .osm.pbf file (if it was not already downloaded)
 #' its_pbf = oe_download(
 #'   file_url = its_match$url,
 #'   file_size = its_match$file_size,
@@ -130,13 +136,13 @@
 #' )
 #'
 #' # Check that the file was downloaded
-#' list.files(tempdir(), pattern = "pbf|gpkg", full.names = TRUE)
+#' list.files(tempdir(), pattern = "pbf|gpkg")
 #'
 #' # Convert to gpkg format
 #' its_gpkg = oe_vectortranslate(its_pbf)
 #'
 #' # Now there is an extra .gpkg file
-#' list.files(tempdir(), pattern = "pbf|gpkg", full.names = TRUE)
+#' list.files(tempdir(), pattern = "pbf|gpkg")
 #'
 #' # Check the layers of the .gpkg file
 #' sf::st_layers(its_gpkg, do_count = TRUE)
@@ -161,10 +167,8 @@
 #' )
 #' sf::st_layers(its_gpkg, do_count = TRUE)
 #'
-#'
 #' # Remove .pbf and .gpkg files in tempdir
-#' # (since they may interact with other examples)
-#' file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
+#' oe_clean(tempdir())
 oe_vectortranslate = function(
   file_path,
   layer = "lines",
@@ -179,8 +183,11 @@ oe_vectortranslate = function(
 ) {
   # Check that the input file was specified using the format
   # ".../something.pbf". This is important for creating the .gpkg file path.
-  if (tools::file_ext(file_path) != "pbf" || !file.exists(file_path)) {
-    stop("The parameter file_path must correspond to an existing .pbf file")
+  if (! tools::file_ext(file_path) %in% c("pbf", "osm") || !file.exists(file_path)) {
+    oe_stop(
+      .subclass = "oe_vectortranslate_filePathMissingOrNotPbf",
+      message = "The parameter file_path must correspond to an existing .pbf file"
+    )
   }
 
   # Check that the layer param is not NA or NULL
@@ -193,9 +200,12 @@ oe_vectortranslate = function(
       "points", "lines", "multipolygons", "multilinestrings", "other_relations"
     )
   ) {
-    stop(
-      "You need to specify the layer parameter and it must be one of",
-      " points, lines, multipolygons, multilinestrings or other_relations."
+    oe_stop(
+      .subclass = "oe_vectortranslate-layerNotProperlySpecified",
+      message = paste0(
+        "You need to specify the layer parameter and it must be one of",
+        " points, lines, multipolygons, multilinestrings or other_relations."
+      )
     )
   }
 
@@ -228,7 +238,11 @@ oe_vectortranslate = function(
   if (file.exists(gpkg_file_path) && isFALSE(force_vectortranslate)) {
     if (layer %!in% sf::st_layers(gpkg_file_path)[["name"]]) {
       # Try to add the new layer from the .osm.pbf file to the .gpkg file
-      oe_message("Adding a new layer to the .gpkg file", quiet = quiet)
+      oe_message(
+        "Adding a new layer to the .gpkg file.",
+        quiet = quiet,
+        .subclass = "oe_vectortranslate_addingNewLayer"
+      )
 
       force_vectortranslate = TRUE
     }
@@ -275,7 +289,20 @@ oe_vectortranslate = function(
         ))
       }
 
-      if (all(extra_tags %in% old_tags)) {
+      # Convert the character ":" into "_" for the extra_tags argument (see also
+      # https://github.com/ropensci/osmextract/issues/260 for more details). I
+      # create a temp object since I don't need to actually change the argument.
+
+      # NB: The laundering of ":" into "_" by GDAL is actually controlled by the
+      # attribute_name_laundering tag in osmconf.ini. However, since we do not
+      # support the "extra_tag" and "osmconf_ini" arguments at the same time, we
+      # do not need to check whether attribute_name_laundering=no is uncommented in
+      # the .ini file. In fact, if osmconf_ini is not NULL, the
+      # vectortranslate operations are never skipped.
+
+      temp_extra_tags <- gsub(":", "_", extra_tags)
+
+      if (all(temp_extra_tags %in% old_tags)) {
         force_vectortranslate = FALSE
       }
     }
@@ -287,7 +314,8 @@ oe_vectortranslate = function(
     oe_message(
       "The corresponding gpkg file was already detected. ",
       "Skip vectortranslate operations.",
-      quiet = quiet
+      quiet = quiet,
+      .subclass = "oe_vectortranslate_skipOperations"
     )
     return(gpkg_file_path)
   }
@@ -368,9 +396,9 @@ oe_vectortranslate = function(
         which_f == length(vectortranslate_options) ||
         vectortranslate_options[which_f + 1] != "GPKG"
       ) {
-        stop(
-          "The oe_vectortranslate function should translate only to GPKG format",
-          call. = FALSE
+        oe_stop(
+          .subclass = "oe_vectortranslate_shouldTranslateToGPKGOnly",
+          message = "The oe_vectortranslate function should translate to GPKG format only"
         )
       }
     }
@@ -416,8 +444,9 @@ oe_vectortranslate = function(
   }
 
   oe_message(
-    "Start with the vectortranslate operations on the input file!",
-    quiet = quiet
+    "Starting with the vectortranslate operations on the input file!",
+    quiet = quiet,
+    .subclass = "oe_vectortranslate_startVectortranslate"
   )
 
   # Now we can apply the vectortranslate operation from gdal_utils: See
@@ -433,7 +462,8 @@ oe_vectortranslate = function(
 
   oe_message(
     "Finished the vectortranslate operations on the input file!",
-    quiet = quiet
+    quiet = quiet,
+    .subclass = "oe_vectortranslate_finishedVectortranslate"
   )
 
   # and return the path of the gpkg file
@@ -519,12 +549,14 @@ process_boundary = function(
     return(vectortranslate_options)
   }
 
-
-
   # Match the boundary type
   boundary_type = match.arg(boundary_type)
 
-  # Extract the geometry (or just return the geometry if boundary is a sfc)
+  # Extract/convert the geometry (or just return the geometry if boundary is a
+  # sfc)
+  if (inherits(boundary, "bbox")) {
+    boundary = sf::st_as_sfc(boundary)
+  }
   boundary = sf::st_geometry(boundary)
 
   # Check the number of geometries
@@ -542,6 +574,10 @@ process_boundary = function(
   # Check the CRS of boundary
   if (sf::st_crs(boundary) != sf::st_crs(4326)) {
     boundary = sf::st_transform(boundary, 4326)
+  }
+  # Try to fix the boundary in case it's not valid
+  if (! sf::st_is_valid(boundary)) {
+    boundary = sf::st_make_valid(boundary)
   }
 
   # Add and return

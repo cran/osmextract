@@ -26,7 +26,7 @@ oe_read(
 )
 }
 \arguments{
-\item{file_path}{A URL or the path of a \code{.pbf} or \code{.gpkg} file. If a URL,
+\item{file_path}{A URL or the path to a \code{.pbf} or \code{.gpkg} file. If a URL,
 then it must be specified using HTTP/HTTPS protocol.}
 
 \item{layer}{Which \code{layer} should be read in? Typically \code{points}, \code{lines}
@@ -36,9 +36,9 @@ vignette and examples), then \code{oe_get()} and \code{oe_read()} will read the 
 specified in the query and ignore \code{layer}. See also
 \href{https://github.com/ropensci/osmextract/issues/122}{#122}.}
 
-\item{...}{Arguments that will be passed to \code{\link[sf:st_read]{sf::st_read()}}, like \code{query},
-\code{wkt_filter} or \code{stringsAsFactors}.  Check the introductory vignette to
-understand how to create your own (SQL-like) queries.}
+\item{...}{(Named) arguments that will be passed to \code{\link[sf:st_read]{sf::st_read()}}, like
+\code{query}, \code{wkt_filter} or \code{stringsAsFactors}.  Check the introductory
+vignette to understand how to create your own (SQL-like) queries.}
 
 \item{provider}{Which provider should be used to download the data? Available
 providers can be found with the following command: \code{\link[=oe_providers]{oe_providers()}}. For
@@ -89,26 +89,26 @@ Ignored when \code{osmconf_ini} is not \code{NULL}.}
 
 \item{force_vectortranslate}{Boolean. Force the original \code{.pbf} file to be
 translated into a \code{.gpkg} file, even if a \code{.gpkg} with the same name
-already exists? \code{FALSE} by default. If tags in \code{extra_tags} match data
-in previously translated \code{.gpkg} files no translation occurs
-(see \href{https://github.com/ropensci/osmextract/issues/173}{#173} for details).
+already exists? \code{FALSE} by default. If tags in \code{extra_tags} match data in
+previously translated \code{.gpkg} files no translation occurs (see
+\href{https://github.com/ropensci/osmextract/issues/173}{#173} for details).
 Check the introductory vignette and the help page of
 \code{\link[=oe_vectortranslate]{oe_vectortranslate()}}.}
 
 \item{never_skip_vectortranslate}{Boolean. This is used in case the user
-passed its own \code{.ini} file or vectortranslate options (since, in those case,
-it's too difficult to determine if an existing \code{.gpkg} file was generated
-following the same options.)}
+passed its own \code{.ini} file or vectortranslate options (since, in those
+case, it's too difficult to determine if an existing \code{.gpkg} file was
+generated following the same options.)}
 
-\item{boundary}{An \code{sf} or \code{sfc} object that will be used to create a spatial
-filter during the vectortranslate operations. The type of filter can be
-chosen using the argument \code{boundary_type}.}
+\item{boundary}{An \code{sf}/\code{sfc}/\code{bbox} object that will be used to create a
+spatial filter during the vectortranslate operations. The type of filter
+can be chosen using the argument \code{boundary_type}.}
 
 \item{boundary_type}{A character vector of length 1 specifying the type of
 spatial filter. The \code{spat} filter selects only those features that
-intersect a given area, while \code{clipsrc} also clips the geometries. See the
-examples and check \href{https://gdal.org/programs/ogr2ogr.html}{here} for more
-details.}
+intersect a given area, while \code{clipsrc} also clips the geometries. Check
+the examples and also \href{https://gdal.org/programs/ogr2ogr.html}{here} for
+more details.}
 
 \item{quiet}{Boolean. If \code{FALSE}, the function prints informative messages.
 Starting from \code{sf} version
@@ -117,7 +117,8 @@ if \code{quiet} is equal to \code{FALSE}, then vectortranslate operations will
 display a progress bar.}
 }
 \value{
-An \code{sf} object.
+An \code{sf} object or, when \code{download_only} argument equals \code{TRUE}, a
+character vector.
 }
 \description{
 This function is used to read a \code{.pbf} or \code{.gpkg} object from file or URL. It
@@ -131,38 +132,38 @@ The arguments \code{provider}, \code{download_directory}, \code{file_size},
 \code{force_download}, and \code{max_file_size} are ignored if \code{file_path} points to
 an existing \code{.pbf} or \code{.gpkg} file.
 
-You cannot add any field or layer to an existing \code{.gpkg} file (unless you
-have the \code{.pbf} file and you convert it again with a different
-configuration), but you can extract some of the tags in \code{other_tags} field.
-Check examples and \code{\link[=oe_get_keys]{oe_get_keys()}} for more details.
+Please note that you cannot add any field to an existing \code{.gpkg} file using
+the argument \code{extra_tags} without rerunning the vectortranslate process on
+the corresponding \code{.pbf} file. On the other hand, you can extract some of
+the tags in \code{other_tags} field as new columns. See examples and
+\code{\link[=oe_get_keys]{oe_get_keys()}} for more details.
 }
 \examples{
 # Read an existing .pbf file. First we need to copy a .pbf file into a
 # temporary directory
+its_pbf = file.path(tempdir(), "test_its-example.osm.pbf")
 file.copy(
   from = system.file("its-example.osm.pbf", package = "osmextract"),
-  to = file.path(tempdir(), "its-example.osm.pbf")
+  to = its_pbf
 )
-
-my_pbf = file.path(tempdir(), "its-example.osm.pbf")
-oe_read(my_pbf)
+oe_read(its_pbf)
 
 # Read a new layer
-oe_read(my_pbf, layer = "points")
+oe_read(its_pbf, layer = "points")
 
 # The following example shows how to add new tags
-names(oe_read(my_pbf, extra_tags = c("oneway", "ref"), quiet = TRUE))
+names(oe_read(its_pbf, extra_tags = c("oneway", "ref"), quiet = TRUE))
 
-# Read an existing .gpkg file. This file was created by oe_read
-my_gpkg = file.path(tempdir(), "its-example.gpkg")
-oe_read(my_gpkg)
+# Read an existing .gpkg file. This file was created internally by oe_read().
+its_gpkg = file.path(tempdir(), "test_its-example.gpkg")
+oe_read(its_gpkg)
 
-# You cannot add any layer to an existing .gpkg file but you can extract some
-# of the tags in other_tags. Check oe_get_keys() for more details.
-names(oe_read(my_gpkg, extra_tags = c("maxspeed"))) # doesn't work
+# You cannot add any new layer to an existing .gpkg file but you can extract
+# some of the tags in other_tags. Check oe_get_keys() for more details.
+names(oe_read(its_gpkg, extra_tags = c("maxspeed"))) # doesn't work
 # Instead, use the query argument
 names(oe_read(
-  my_gpkg,
+  its_gpkg,
   quiet = TRUE,
   query =
   "SELECT *,
@@ -179,6 +180,5 @@ my_url = "https://github.com/ropensci/osmextract/raw/master/inst/its-example.osm
 oe_read(my_url, provider = "test", quiet = FALSE)}
 
 # Remove .pbf and .gpkg files in tempdir
-# (since they may interact with other examples)
-file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
+oe_clean(tempdir())
 }

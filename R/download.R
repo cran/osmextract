@@ -36,7 +36,7 @@
 #' @export
 #'
 #' @examples
-#' its_match = oe_match("ITS Leeds", quiet = TRUE)
+#' (its_match = oe_match("ITS Leeds", quiet = TRUE))
 #'
 #' \dontrun{
 #' oe_download(
@@ -70,10 +70,13 @@ oe_download = function(
 
   ## At the moment the function works only with a single URL
   if (length(file_url) != 1L) {
-    stop(
-      "The parameter file_url must have length 1 but you specified ",
-      length(file_url),
-      " elements."
+    oe_stop(
+      .subclass = "oe_download_LengthFileUrlGt2",
+      message = paste0(
+        "The parameter file_url must have length 1 but you specified ",
+        length(file_url),
+        " elements."
+      ),
     )
   }
 
@@ -89,8 +92,12 @@ oe_download = function(
     paste(provider, file_basename, sep = "_")
   )
 
-  # Normalise the file_path
-  file_path = normalizePath(file_path, mustWork = FALSE)
+  # Normalise the file_path. I set winslash = "/" because it helps the printing
+  # of the file_path in case there is any error in the next code lines. In fact,
+  # "\\" is escaped to "\" when printing and the problem is that I cannot run
+  # file.remove("C:/something/..../whatever.osm.pbf") which is exactly the
+  # suggestion that may be returned by the tryCatch below
+  file_path = normalizePath(file_path, winslash = "/", mustWork = FALSE)
 
   # If the file exists and force_download is FALSE, then raise a message and
   # return the file_path. Otherwise we download it after checking for the
@@ -99,7 +106,8 @@ oe_download = function(
     oe_message(
       "The chosen file was already detected in the download directory. ",
       "Skip downloading.",
-      quiet = quiet
+      quiet = quiet,
+      .subclass = "oe_download_skipDownloading"
     )
     return(file_path)
   }
@@ -113,9 +121,13 @@ oe_download = function(
       !is.null(file_size) &&
       !is.na(file_size) &&
       file_size >= max_file_size
-    ) {
-      message("You are trying to download a file from ", file_url)
-      message("This is a large file (", round(file_size / 1048576), " MB)!")
+    ) { # nocov start
+      oe_message(
+        "You are trying to download a file from ", file_url,
+        "This is a large file (", round(file_size / 1048576), " MB)!",
+        quiet = FALSE,
+        .subclass = "oe_download_LargeFile"
+      )
       continue = utils::menu(
         choices = c("Yes", "No"),
         title = "Are you sure that you want to download it?"
@@ -123,23 +135,54 @@ oe_download = function(
 
       # It think it's always useful to see the progress bar for large files
       quiet = FALSE
-    }
+    } # nocov end
 
     if (continue != 1L) {
-      stop("Aborted by user.")
+      oe_stop(
+        .subclass = "oe_download_AbortedByUser",
+        message = "Aborted by user"
+      )
     }
 
-    resp = httr::GET(
-      url = file_url,
-      if (isFALSE(quiet)) httr::progress(),
-      # if (isFALSE(quiet)) httr::verbose(),
-      httr::write_disk(file_path, overwrite = TRUE),
-      httr::timeout(300L)
+    oe_message(
+      "Downloading the OSM extract:",
+      quiet = quiet,
+      .subclass = "oe_download_StartDownloading"
+    )
+
+    resp = tryCatch(
+      expr = {
+        httr::GET(
+          url = file_url,
+          if (isFALSE(quiet)) httr::progress(),
+          # if (isFALSE(quiet)) httr::verbose(),
+          httr::write_disk(file_path, overwrite = TRUE),
+          httr::timeout(max(300L, getOption("timeout")))
+        )
+      },
+      error = function(e) {
+        oe_stop(
+          .subclass = "oe_download_DownloadAborted",
+          message = paste0(
+            "The download operation was aborted. ",
+            "If this was not intentional, you may want to increase the timeout for internet operations ",
+            "to a value >= 300 by using options(timeout = ...) before re-running this function. ",
+            "We also suggest you to remove the partially downloaded file by running the ",
+            "following code (possibly in a new R session): ",
+            # NB: Don't add a full stop since that makes copying code really annoying
+            "file.remove(", dQuote(file_path, q = FALSE), ")"
+          )
+        )
+      }
     )
 
     httr::stop_for_status(resp, "download data from the provider")
 
-    oe_message("File downloaded!", quiet = quiet)
+    oe_message(
+      "File downloaded!",
+      quiet = quiet,
+      .subclass = "oe_download_FileDownloaded"
+    )
   }
 
   file_path
@@ -153,7 +196,10 @@ infer_provider_from_url = function(file_url) {
   )
   m = regexpr(pattern = providers_regex, file_url)
   if (m == -1L) {
-    stop("Cannot infer the provider from the url, please specify it.")
+    oe_stop(
+      .subclass = "oe_download_CannotInferProviderFromUrl",
+      message = "Cannot infer the provider from the url, please specify it."
+    )
   }
   matching_provider = regmatches(x = file_url, m = m)
   matching_provider

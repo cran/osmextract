@@ -2,19 +2,42 @@
 % Please edit documentation in R/match.R
 \name{oe_match_pattern}
 \alias{oe_match_pattern}
+\alias{oe_match_pattern.numeric}
+\alias{oe_match_pattern.sf}
+\alias{oe_match_pattern.bbox}
+\alias{oe_match_pattern.sfc}
+\alias{oe_match_pattern.character}
 \title{Check patterns in the provider's databases}
 \usage{
-oe_match_pattern(pattern, match_by = "name", full_row = FALSE)
+oe_match_pattern(pattern, ...)
+
+\method{oe_match_pattern}{numeric}(pattern, full_row = FALSE, ...)
+
+\method{oe_match_pattern}{sf}(pattern, full_row = FALSE, ...)
+
+\method{oe_match_pattern}{bbox}(pattern, full_row = FALSE, ...)
+
+\method{oe_match_pattern}{sfc}(pattern, full_row = FALSE, ...)
+
+\method{oe_match_pattern}{character}(pattern, match_by = "name", full_row = FALSE, ...)
 }
 \arguments{
-\item{pattern}{Character string representing the pattern that should be
-explored.}
+\item{pattern}{Description of the pattern. Can be either a length-1 character
+vector, an \code{sf}/\code{sfc}/\code{bbox} object, or a numeric vector of coordinates
+with length 2. In the last case, it is assumed that the EPSG code is 4326
+specified as c(LON, LAT), while you can use any CRS with \code{sf}/\code{sfc}/\code{bbox}
+objects.}
 
-\item{match_by}{Column name of the provider's database that will be used to
-find the match.}
+\item{...}{arguments passed to other methods}
 
 \item{full_row}{Boolean. Return all columns for the matching rows? \code{FALSE} by
 default.}
+
+\item{match_by}{Name of the column in the provider's database that will be
+used to find the match in case of character input. In all the other cases,
+the match is performed using a spatial overlay operation and the output
+returns the values stored in the \code{name} column (or even the full \code{sf}
+object when \code{full_row} is \code{TRUE}).}
 }
 \value{
 A list of character vectors or \code{sf} objects (according to the value
@@ -22,9 +45,9 @@ of the parameter \code{full_row}). If no OSM zone can be matched with the input
 string, then the function returns an empty list.
 }
 \description{
-This function is used to explore the provider's databases and look for
-patterns. This function can be useful in combination with \code{\link[=oe_match]{oe_match()}} and
-\code{\link[=oe_get]{oe_get()}} for an easy match. See Examples.
+This function is used to explore all provider's databases and look for
+matches. This function can be useful in combination with \code{\link[=oe_match]{oe_match()}} and
+\code{\link[=oe_get]{oe_get()}} for an exploratory analysis and an easy match. See Examples.
 }
 \examples{
 oe_match_pattern("Yorkshire")
@@ -32,6 +55,5 @@ oe_match_pattern("Yorkshire")
 res = oe_match_pattern("Yorkshire", full_row = TRUE)
 lapply(res, function(x) sf::st_drop_geometry(x)[, 1:3])
 
-oe_match_pattern("ABC")
-oe_match_pattern("Yorkshire", match_by = "ABC")
+oe_match_pattern(c(9, 45)) # long/lat for Milan, Italy
 }

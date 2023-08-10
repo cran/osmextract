@@ -1,15 +1,20 @@
 test_that("oe_download: simplest examples work", {
-  # Skip tests that require internet connection
   skip_on_cran()
   skip_if_offline("github.com")
+  withr::local_envvar(
+    .new = list(
+      "OSMEXT_DOWNLOAD_DIRECTORY" = tempdir(),
+      "TESTTHAT" = "true"
+    )
+  )
+  # I need to add the withr::defer since I don't use setup pbf here
+  withr::defer(oe_clean(tempdir()))
 
-  # Run tests
-  its_match = oe_match("ITS Leeds", provider = "test", quiet = TRUE)
+  its_match = oe_match("ITS Leeds", quiet = TRUE)
   expect_error(
     oe_download(
       file_url = its_match$url,
       provider = "test",
-      download_directory = tempdir(),
       quiet = TRUE
     ),
     NA
@@ -19,24 +24,20 @@ test_that("oe_download: simplest examples work", {
     oe_download(
       file_url = its_match$url,
       provider = "test",
-      download_directory = tempdir(),
       quiet = FALSE
     ),
-    "Skip downloading."
+    class = "oe_download_skipDownloading"
   )
-
-  # Clean tempdir
-  file.remove(list.files(tempdir(), pattern = "its-example", full.names = TRUE))
 })
 
 test_that("oe_download: fails with more than one URL", {
-  expect_error(oe_download(c("a", "b")))
+  expect_error(oe_download(c("a", "b")), class = "oe_download_LengthFileUrlGt2")
 })
 
-test_that("infer_provider_from_url works: ", {
+test_that("infer_provider_from_url: simplest examples work", {
   expect_error(
     infer_provider_from_url("https://github.com/ropensci/osmextract"),
-    "Cannot infer the provider from the url, please specify it."
+    class = "oe_download_CannotInferProviderFromUrl"
   )
   expect_match(
     infer_provider_from_url("https://download.geofabrik.de/africa-latest.osm.pbf"),

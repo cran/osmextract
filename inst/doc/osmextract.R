@@ -9,6 +9,10 @@ knitr::opts_chunk$set(
 user_options = options()
 user_par = par(no.readonly = TRUE)
 
+# save files in the tempdir
+old_dd = Sys.getenv("OSMEXT_DOWNLOAD_DIRECTORY", tempdir())
+Sys.setenv(OSMEXT_DOWNLOAD_DIRECTORY = tempdir())
+
 # set new options
 options(width = 100)
 
@@ -406,7 +410,8 @@ colnames(oe_get(
 ))
 
 ## ---- include=FALSE-----------------------------------------------------------
-# reset par and options
+# reset par, options, and download directory
 options(user_options)
 par(user_par)
+Sys.setenv(OSMEXT_DOWNLOAD_DIRECTORY = old_dd)
 

@@ -57,7 +57,7 @@
 #' # Check the directory
 #' list.files(fake_dir, pattern = "gpkg|pbf")
 #' # Update all .pbf files and delete all .gpkg files
-#' oe_update(fake_dir)
+#' oe_update(fake_dir, quiet = TRUE)
 #' list.files(fake_dir, pattern = "gpkg|pbf")}
 oe_update = function(
   download_directory = oe_download_directory(),
@@ -75,11 +75,13 @@ oe_update = function(
   # The following is used to check if the directory is empty since list.files
   # returns character(0) in case of empty dir
   if (identical(list.files(download_directory), character(0))) {
-    stop(
-      "The download directory, ",
-      download_directory,
-      ", is empty.",
-      call. = FALSE
+    oe_stop(
+      .subclass = "oe_update-emptyDownloadDirectory",
+      message = paste0(
+        "The download directory, ",
+        download_directory,
+        ", is empty."
+      )
     )
   }
 
@@ -130,7 +132,7 @@ oe_update = function(
       )
 
       if (continue != 1L) {
-        stop("Aborted by user.")
+        stop("Aborted by user.", call. = FALSE)
       }
     }
 
@@ -187,6 +189,9 @@ oe_update = function(
       skip_vectortranslate = TRUE,
       max_file_size = max_file_size,
       quiet = quiet,
+      # The files should always be updated in that download_directory (which may
+      # not be the default one)
+      download_directory = download_directory,
       ...
     )
   }

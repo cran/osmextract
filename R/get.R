@@ -67,37 +67,37 @@
 #'   Ignored when `osmconf_ini` is not `NULL`.
 #' @param force_vectortranslate Boolean. Force the original `.pbf` file to be
 #'   translated into a `.gpkg` file, even if a `.gpkg` with the same name
-#'   already exists? `FALSE` by default. If tags in `extra_tags` match data
-#'   in previously translated `.gpkg` files no translation occurs
-#'   (see [#173](https://github.com/ropensci/osmextract/issues/173) for details).
+#'   already exists? `FALSE` by default. If tags in `extra_tags` match data in
+#'   previously translated `.gpkg` files no translation occurs (see
+#'   [#173](https://github.com/ropensci/osmextract/issues/173) for details).
 #'   Check the introductory vignette and the help page of
 #'   [oe_vectortranslate()].
 #' @param skip_vectortranslate Boolean. If `TRUE`, then the function skips all
 #'   vectortranslate operations and it reads (or simply returns the path) of the
 #'   `.osm.pbf` file. `FALSE` by default.
 #' @param never_skip_vectortranslate Boolean. This is used in case the user
-#'   passed its own `.ini` file or vectortranslate options (since, in those case,
-#'   it's too difficult to determine if an existing `.gpkg` file was generated
-#'   following the same options.)
+#'   passed its own `.ini` file or vectortranslate options (since, in those
+#'   case, it's too difficult to determine if an existing `.gpkg` file was
+#'   generated following the same options.)
 #' @param quiet Boolean. If `FALSE`, the function prints informative messages.
 #'   Starting from `sf` version
 #'   [0.9.6](https://r-spatial.github.io/sf/news/index.html#version-0-9-6-2020-09-13),
 #'    if `quiet` is equal to `FALSE`, then vectortranslate operations will
 #'   display a progress bar.
-#' @param boundary An `sf` or `sfc` object that will be used to create a spatial
-#'   filter during the vectortranslate operations. The type of filter can be
-#'   chosen using the argument `boundary_type`.
+#' @param boundary An `sf`/`sfc`/`bbox` object that will be used to create a
+#'   spatial filter during the vectortranslate operations. The type of filter
+#'   can be chosen using the argument `boundary_type`.
 #' @param boundary_type A character vector of length 1 specifying the type of
 #'   spatial filter. The `spat` filter selects only those features that
-#'   intersect a given area, while `clipsrc` also clips the geometries. See the
-#'   examples and check [here](https://gdal.org/programs/ogr2ogr.html) for more
-#'   details.
+#'   intersect a given area, while `clipsrc` also clips the geometries. Check
+#'   the examples and also [here](https://gdal.org/programs/ogr2ogr.html) for
+#'   more details.
 #' @param download_only Boolean. If `TRUE`, then the function only returns the
 #'   path where the matched file is stored, instead of reading it. `FALSE` by
 #'   default.
-#' @param ... Arguments that will be passed to [`sf::st_read()`], like `query`,
-#'   `wkt_filter` or `stringsAsFactors`.  Check the introductory vignette to
-#'   understand how to create your own (SQL-like) queries.
+#' @param ... (Named) arguments that will be passed to [`sf::st_read()`], like
+#'   `query`, `wkt_filter` or `stringsAsFactors`.  Check the introductory
+#'   vignette to understand how to create your own (SQL-like) queries.
 #'
 #' @return An `sf` object.
 #' @export
@@ -110,13 +110,14 @@
 #'   wrapper around `oe_download()`, `oe_vectortranslate()` and `sf::st_read()`)
 #'   performs the other three operations.
 #'
-#' @seealso [`oe_match()`], [`oe_download()`], [`oe_vectortranslate()`],
-#'   and [`oe_read()`].
+#' @seealso [`oe_match()`], [`oe_download()`], [`oe_vectortranslate()`], and
+#'   [`oe_read()`].
 #'
 #' @examples
 #' # Copy ITS file to tempdir so that the examples do not require internet
-#' # connection. You can skip the next few lines when running the examples
+#' # connection. You can skip the next 4 lines when running the examples
 #' # locally.
+#'
 #' its_pbf = file.path(tempdir(), "test_its-example.osm.pbf")
 #' file.copy(
 #'   from = system.file("its-example.osm.pbf", package = "osmextract"),
@@ -125,27 +126,36 @@
 #' )
 #'
 #' # Match, download (not really) and convert OSM extracts associated to a simple test.
-#' its = oe_get("ITS Leeds", quiet = FALSE, download_directory = tempdir())
+#' its = oe_get("ITS Leeds", download_directory = tempdir())
 #' class(its)
 #' unique(sf::st_geometry_type(its))
 #'
 #' # Get another layer from ITS Leeds extract
-#' its_points = oe_get("ITS Leeds", layer = "points")
+#' its_points = oe_get("ITS Leeds", layer = "points", download_directory = tempdir())
 #' unique(sf::st_geometry_type(its_points))
 #'
 #' # Get the .osm.pbf and .gpkg files paths
-#' oe_get("ITS Leeds", download_only = TRUE, quiet = TRUE)
-#' oe_get("ITS Leeds", download_only = TRUE, skip_vectortranslate = TRUE, quiet = TRUE)
+#' oe_get(
+#'   "ITS Leeds", download_only = TRUE, quiet = TRUE,
+#'   download_directory = tempdir()
+#' )
+#' oe_get(
+#'   "ITS Leeds", download_only = TRUE, skip_vectortranslate = TRUE,
+#'   quiet = TRUE, download_directory = tempdir()
+#' )
 #' # See also ?oe_find()
 #'
 #' # Add additional tags
-#' its_with_oneway = oe_get("ITS Leeds", extra_tags = "oneway")
+#' its_with_oneway = oe_get(
+#'   "ITS Leeds", extra_tags = "oneway",
+#'   download_directory = tempdir()
+#' )
 #' names(its_with_oneway)
 #' table(its_with_oneway$oneway, useNA = "ifany")
 #'
 #' # Use the query argument to get only oneway streets:
 #' q = "SELECT * FROM 'lines' WHERE oneway == 'yes'"
-#' its_oneway = oe_get("ITS Leeds", query = q)
+#' its_oneway = oe_get("ITS Leeds", query = q, download_directory = tempdir())
 #' its_oneway[, c(1, 3, 9)]
 #'
 #' # Apply a spatial filter during the vectortranslate operations
@@ -163,8 +173,11 @@
 #'   ),
 #'   crs = 4326
 #' )
-#' its_spat = oe_get("ITS Leeds", boundary = its_poly)
-#' its_clipped = oe_get("ITS Leeds", boundary = its_poly, boundary_type = "clipsrc", quiet = TRUE)
+#' its_spat = oe_get("ITS Leeds", boundary = its_poly, download_directory = tempdir())
+#' its_clipped = oe_get(
+#'   "ITS Leeds", boundary = its_poly, boundary_type = "clipsrc",
+#'   quiet = TRUE, download_directory = tempdir()
+#' )
 #'
 #' plot(sf::st_geometry(its), reset = FALSE, col = "lightgrey")
 #' plot(sf::st_boundary(its_poly), col = "black", add = TRUE)
@@ -198,8 +211,7 @@
 #' oe_get("Andora", stringsAsFactors = FALSE, quiet = TRUE, as_tibble = TRUE)}
 #'
 #' # Remove .pbf and .gpkg files in tempdir
-#' # (since they may interact with other examples)
-#' file.remove(list.files(path = tempdir(), pattern = "(pbf|gpkg)", full.names = TRUE))
+#' oe_clean(tempdir())
 oe_get = function(
   place,
   layer = "lines",
