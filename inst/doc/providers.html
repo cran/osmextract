@@ -350,9 +350,9 @@ At the moment, we support the following providers:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">oe_providers</span>()</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Check the corresponding help pages to read more details about the fields in each database (e.g. ?geofabrik_zones).</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;   available_providers          database_name number_of_zones number_of_fields</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 1           geofabrik        geofabrik_zones             475                8</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 2              bbbike           bbbike_zones             236                5</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 3    openstreetmap_fr openstreetmap_fr_zones            1135                6</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 1           geofabrik        geofabrik_zones             476                8</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 2              bbbike           bbbike_zones             237                5</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 3    openstreetmap_fr openstreetmap_fr_zones            1187                6</span></span></code></pre></div>
 <p>Check the “Comparing the supported OSM providers” for more details on
 the existing providers.</p>
 <p>This package is designed to make it easy to add new providers. There
@@ -374,7 +374,8 @@ analogous to the <code>test_zones</code> object shown below:</p>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;XY&quot; &quot;POLYGON&quot; &quot;sfg&quot;</span></span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;  - attr(*, &quot;sf_column&quot;)= chr &quot;geometry&quot;</span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;  - attr(*, &quot;agr&quot;)= Factor w/ 3 levels &quot;constant&quot;,&quot;aggregate&quot;,..: NA NA</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;name&quot; &quot;pbf&quot;</span></span></code></pre></div>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;name&quot; &quot;pbf&quot;</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;  - attr(*, &quot;.sf_namespace&quot;)=function ()</span></span></code></pre></div>
 <p>The output shows the three most important column names:</p>
 <ol style="list-style-type: decimal">
 <li>The zone <code>name</code> (that is used for matching the input

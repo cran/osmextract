@@ -370,7 +370,7 @@ st_layers(its_gpkg, do_count = TRUE)
 ### `osmconf_ini` and `extra_tags`
 
 The arguments `osmconf_ini` and `extra_tags` are used to modify how GDAL reads and processes a `.pbf` file. 
-More precisely, several operations that GDAL performs on a `.pbf` file are governed by a `CONFIG` file, that you can check at the following [link](https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini). 
+More precisely, several operations that GDAL performs on a `.pbf` file are governed by a `CONFIG` file, that you can check at the following [link](https://github.com/OSGeo/gdal/blob/master/ogr/ogrsf_frmts/osm/data/osmconf.ini). 
 The package stores a local copy which is used as the standard `CONFIG` file.
 
 The basic components of OSM data are called [*elements*](https://wiki.openstreetmap.org/wiki/Elements) and they are divided into *nodes*, *ways* or *relations*. 
@@ -524,7 +524,7 @@ The arguments `osmconf_ini`, `vectortranslate_options`, `boundary`, `boundary_ty
 ### `osmconf_ini`
 
 The following example shows how to create an ad-hoc `CONFIG` file, which is used by GDAL to read a `.pbf` file in a customised way. 
-First, we load a local copy of the default `osmconf.ini` file, taken from the following [link](https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini). 
+First, we load a local copy of the default `osmconf.ini` file, taken from the following [link](https://github.com/OSGeo/gdal/blob/master/ogr/ogrsf_frmts/osm/data/osmconf.ini). 
 
 ```{r}
 custom_osmconf_ini = readLines(system.file("osmconf.ini", package = "osmextract"))
@@ -564,7 +564,7 @@ If we compare it with the default output:
 oe_get("ITS Leeds", provider = "test", quiet = FALSE, force_vectortranslate = TRUE)
 ```
 
-we can see that there are 2 extra features in the `sf` object that was read-in using the customized `CONFIG` file (i.e. 191 features instead of 189 since we set `"report_all_nodes=yes"` and `"report_all_ways=yes"`) and just 4 field: `highway`, `lanes` (see the code a few chunks above), `z_order` (check the code [here](https://github.com/OSGeo/gdal/blob/9f31018839b32aeeafad7663a8de662153a956c3/gdal/data/osmconf.ini#L65-L71)), and `other_tags`.
+we can see that there are 2 extra features in the `sf` object that was read-in using the customized `CONFIG` file (i.e. 191 features instead of 189 since we set `"report_all_nodes=yes"` and `"report_all_ways=yes"`) and just 4 field: `highway`, `lanes` (see the code a few chunks above), `z_order` (check the code [here](https://github.com/OSGeo/gdal/blob/94c80fdb5659541b522896b094c732200044b17c/ogr/ogrsf_frmts/osm/data/osmconf.ini#L70-L76)), and `other_tags`.
 
 Please note that the argument `extra_tags` is always ignored (with a warning message), if you are using an ad-hoc `osmconf.ini` file: 
 
@@ -599,7 +599,7 @@ First of all, we need to build a character vector with the options that will be 
 my_vectortranslate = c(
   "-t_srs", "EPSG:27700", 
   # SQL-like query where we select only the following fields
-  "-select", "osm_id, highway", 
+  "-select", "osm_id,highway", 
   # SQL-like query where we filter only the features where highway is equal to footway or cycleway
   "-where", "highway IN ('footway', 'cycleway')"
 )
@@ -624,7 +624,7 @@ oe_get("Portugal", download_only = TRUE, skip_vectortranslate = TRUE)
 # 2. Define the vectortranslate options
 my_vectortranslate = c(
   # SQL-like query where we select only the features where highway in (primary, secondary, tertiary)
-  "-select", "osm_id, highway",
+  "-select", "osm_id,highway",
   "-where", "highway IN ('primary', 'secondary', 'tertiary')"
 )
 

@@ -406,9 +406,9 @@ installed.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">oe_providers</span>()</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Check the corresponding help pages to read more details about the fields in each database (e.g. ?geofabrik_zones).</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;   available_providers          database_name number_of_zones number_of_fields</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 1           geofabrik        geofabrik_zones             475                8</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 2              bbbike           bbbike_zones             236                5</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 3    openstreetmap_fr openstreetmap_fr_zones            1135                6</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 1           geofabrik        geofabrik_zones             476                8</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 2              bbbike           bbbike_zones             237                5</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 3    openstreetmap_fr openstreetmap_fr_zones            1187                6</span></span></code></pre></div>
 <p>Each element in the column <code>database_name</code> is a data
 object that is packaged with <code>osmextract</code>. You can read a
 detailed description of each provider data running, for example,
@@ -424,7 +424,7 @@ defined in the <a href="https://r-spatial.github.io/sf/">package</a> of
 the same name. When working with <code>sf</code> objects, it makes sense
 to have the package loaded:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.11.2, GDAL 3.6.2, PROJ 9.2.0; sf_use_s2() is TRUE</span></span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.11.2, GDAL 3.7.2, PROJ 9.3.0; sf_use_s2() is TRUE</span></span></code></pre></div>
 <p>That gives you access to many functions for working with geographic
 vector data of the type provided by <code>osmextract</code>. Each row of
 data in an <code>sf</code> object contains a geometry, representing the
@@ -432,7 +432,7 @@ area covered by a provider zone, meaning you can plot the data as
 follows:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">rep</span>(<span class="fl">0.1</span>, <span class="dv">4</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(geofabrik_zones))</span></code></pre></div>
-<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 <p>The plot above shows how the provider divides geographic space into
 discrete chunks. Different providers have other zoning systems. For
 example:</p>
@@ -462,14 +462,14 @@ providers. For example:</p>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.geofabrik.de/europe/italy-latest.osm.pbf&quot;</span></span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; [1] 1.7e+09</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; [1] 1.8e+09</span></span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">oe_match</span>(<span class="st">&quot;Leeds&quot;</span>, <span class="at">provider =</span> <span class="st">&quot;bbbike&quot;</span>)</span>
 <span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; The input place was matched with: Leeds</span></span>
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; $url</span></span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.bbbike.org/osm/bbbike/Leeds/Leeds.osm.pbf&quot;</span></span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; [1] 24362749</span></span></code></pre></div>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; [1] 25248940</span></span></code></pre></div>
 <p>The geographical zone is chosen by calculating the Approximate String
 Distance (<code>?adist()</code>) between the input <code>place</code>
 and one of the fields in the provider’s dataset. Then, the function
@@ -494,7 +494,7 @@ codes</a>:</p>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.geofabrik.de/north-america/us-latest.osm.pbf&quot;</span></span>
 <span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; [1] 8.9e+09</span></span></code></pre></div>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; [1] 9.6e+09</span></span></code></pre></div>
 <p>There are a few scenarios where the <code>iso3166-1 alpha2</code>
 codes in <code>geofabrik_data</code> cannot be used since there are no
 per-country extracts (e.g. Israel and Palestine):</p>
@@ -580,7 +580,7 @@ each provider’s data:</p>
 <span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; [1] &quot;http://download.openstreetmap.fr/extracts/europe/spain/comunitat_valenciana-latest.osm.pbf&quot;</span></span>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; [1] 109632873</span></span></code></pre></div>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; [1] 128335409</span></span></code></pre></div>
 <p>The parameter <code>max_string_dist</code> (default value is 1)
 represents the maximum tolerable distance between the input place and
 the closest match in <code>match_by</code> column. This value can always
@@ -593,7 +593,7 @@ matches:</p>
 <span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.geofabrik.de/asia/iran-latest.osm.pbf&quot;</span></span>
 <span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; [1] 1.85e+08</span></span></code></pre></div>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; [1] 1.97e+08</span></span></code></pre></div>
 <p>The parameter <code>max_string_dist</code> is always set to 0 if
 <code>match_by</code> argument is equal to <code>iso3166_1_alpha2</code>
 or <code>iso3166_2</code>.</p>
@@ -609,7 +609,7 @@ providers. For example:</p>
 <span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.bbbike.org/osm/bbbike/Leeds/Leeds.osm.pbf&quot;</span></span>
 <span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; [1] 24362749</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; [1] 25248940</span></span>
 <span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="fu">oe_match</span>(<span class="st">&quot;London&quot;</span>)</span>
 <span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; No exact match found for place = London and provider = geofabrik. Best match is Jordan. </span></span>
 <span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt; Checking the other providers.</span></span>
@@ -618,7 +618,7 @@ providers. For example:</p>
 <span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.bbbike.org/osm/bbbike/London/London.osm.pbf&quot;</span></span>
 <span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; [1] 97431675</span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; [1] 110378279</span></span>
 <span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="fu">oe_match</span>(<span class="st">&quot;Vatican City&quot;</span>)</span>
 <span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt; No exact match found for place = Vatican City and provider = geofabrik. Best match is Valencia. </span></span>
 <span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; Checking the other providers.</span></span>
@@ -627,7 +627,7 @@ providers. For example:</p>
 <span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a><span class="co">#&gt; [1] &quot;http://download.openstreetmap.fr/extracts/europe/vatican_city-latest.osm.pbf&quot;</span></span>
 <span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a><span class="co">#&gt; [1] 663447</span></span></code></pre></div>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a><span class="co">#&gt; [1] 815969</span></span></code></pre></div>
 <p>Finally, if there is no exact match with any of the supported
 providers and <code>match_by</code> argument is equal to
 <code>&quot;name&quot;</code>, then <code>oe_match()</code> will use the <a href="https://nominatim.org/release-docs/develop/api/Overview/">Nominatim
@@ -659,7 +659,7 @@ area).</p>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.geofabrik.de/europe/italy/nord-ovest-latest.osm.pbf&quot;</span></span>
 <span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; [1] 4.7e+08</span></span></code></pre></div>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; [1] 4.99e+08</span></span></code></pre></div>
 <p>If the input <code>place</code> intersects multiple geographically
 nested areas and the argument <code>level</code> is equal to
 <code>NULL</code> (the default value), then <code>oe_match()</code>
@@ -681,7 +681,7 @@ and <code>4</code> the subregions:</p>
 <span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.geofabrik.de/north-america/us/washington-latest.osm.pbf&quot;</span></span>
 <span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt; [1] 2.42e+08</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt; [1] 2.78e+08</span></span>
 <span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="fu">oe_match</span>(yak, <span class="at">level =</span> <span class="dv">3</span>, <span class="at">quiet =</span> <span class="cn">TRUE</span>) <span class="co"># error</span></span>
 <span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="co">#&gt; Error: The input place does not intersect any area at the chosen level.</span></span></code></pre></div>
 <p>If there are multiple OSM extract intersecting the input
@@ -726,7 +726,7 @@ vector of coordinates. In that case, the CRS is assumed to be <a href="https://s
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;https://download.geofabrik.de/europe/italy/nord-ovest-latest.osm.pbf&quot;</span></span>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; $file_size</span></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; [1] 4.7e+08</span></span></code></pre></div>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; [1] 4.99e+08</span></span></code></pre></div>
 <p>Finally, to reduce unnecessary computational resources and save
 bandwidth/electricity, we will use a small OSM extract in subsequent
 sections that can be matched as follows:</p>
@@ -765,7 +765,7 @@ point to a directory that will persist, you can add
 <p>You can always check the default <code>download_directory</code> used
 by <code>oe_download()</code> with:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">oe_download_directory</span>()</span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;C:\\Users\\user\\AppData\\Local\\Temp\\RtmpakFTXh&quot;</span></span></code></pre></div>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;C:\\Users\\user\\AppData\\Local\\Temp\\RtmpWoxx5k&quot;</span></span></code></pre></div>
 <p>We strongly advise you setting a persistent directory since
 downloading and converting (see the next sub-section) <code>.pbf</code>
 files are expensive operations, that can be skipped if the functions
@@ -866,7 +866,7 @@ change that using the parameter <code>layer</code>.</p>
 are used to modify how GDAL reads and processes a <code>.pbf</code>
 file. More precisely, several operations that GDAL performs on a
 <code>.pbf</code> file are governed by a <code>CONFIG</code> file, that
-you can check at the following <a href="https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini">link</a>.
+you can check at the following <a href="https://github.com/OSGeo/gdal/blob/master/ogr/ogrsf_frmts/osm/data/osmconf.ini">link</a>.
 The package stores a local copy which is used as the standard
 <code>CONFIG</code> file.</p>
 <p>The basic components of OSM data are called <a href="https://wiki.openstreetmap.org/wiki/Elements"><em>elements</em></a>
@@ -1011,7 +1011,7 @@ path or URL.</p>
 <code>its-gpkg</code> file:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">oe_read</span>(its_gpkg)</span>
 <span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 189 features and 11 fields</span></span>
 <span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1023,7 +1023,7 @@ file, the vectortranslate operations can be skipped using the parameter
 will ignore the conversion step.</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">oe_read</span>(its_pbf, <span class="at">skip_vectortranslate =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.osm.pbf&#39; using driver `OSM&#39;</span></span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.osm.pbf&#39; using driver `OSM&#39;</span></span>
 <span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 189 features and 10 fields</span></span>
 <span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1054,7 +1054,7 @@ follows:</p>
 <span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="co">#&gt; The chosen file was already detected in the download directory. Skip downloading.</span></span>
 <span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a><span class="co">#&gt; The corresponding gpkg file was already detected. Skip vectortranslate operations.</span></span>
 <span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 189 features and 11 fields</span></span>
 <span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1118,7 +1118,7 @@ of getting OSM extracts into R.</p>
 <code>CONFIG</code> file, which is used by GDAL to read a
 <code>.pbf</code> file in a customised way. First, we load a local copy
 of the default <code>osmconf.ini</code> file, taken from the following
-<a href="https://github.com/OSGeo/gdal/blob/master/data/osmconf.ini">link</a>.</p>
+<a href="https://github.com/OSGeo/gdal/blob/master/ogr/ogrsf_frmts/osm/data/osmconf.ini">link</a>.</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>custom_osmconf_ini <span class="ot">=</span> <span class="fu">readLines</span>(<span class="fu">system.file</span>(<span class="st">&quot;osmconf.ini&quot;</span>, <span class="at">package =</span> <span class="st">&quot;osmextract&quot;</span>))</span></code></pre></div>
 <p>Then, we modify the code at lines 18 and 21 asking GDAL to report all
 nodes and ways (even without any significant tag).</p>
@@ -1144,7 +1144,7 @@ file:</p>
 <span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a><span class="co">#&gt; 0...10...20...30...40...50...60...70...80...90...100 - done.</span></span>
 <span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a><span class="co">#&gt; Finished the vectortranslate operations on the input file!</span></span>
 <span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb43-9"><a href="#cb43-9" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 191 features and 4 fields</span></span>
 <span id="cb43-10"><a href="#cb43-10" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb43-11"><a href="#cb43-11" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1158,7 +1158,7 @@ file:</p>
 <span id="cb44-5"><a href="#cb44-5" tabindex="-1"></a><span class="co">#&gt; 0...10...20...30...40...50...60...70...80...90...100 - done.</span></span>
 <span id="cb44-6"><a href="#cb44-6" tabindex="-1"></a><span class="co">#&gt; Finished the vectortranslate operations on the input file!</span></span>
 <span id="cb44-7"><a href="#cb44-7" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb44-8"><a href="#cb44-8" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb44-8"><a href="#cb44-8" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb44-9"><a href="#cb44-9" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 189 features and 9 fields</span></span>
 <span id="cb44-10"><a href="#cb44-10" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb44-11"><a href="#cb44-11" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1170,7 +1170,7 @@ object that was read-in using the customized <code>CONFIG</code> file
 <code>&quot;report_all_nodes=yes&quot;</code> and
 <code>&quot;report_all_ways=yes&quot;</code>) and just 4 field:
 <code>highway</code>, <code>lanes</code> (see the code a few chunks
-above), <code>z_order</code> (check the code <a href="https://github.com/OSGeo/gdal/blob/9f31018839b32aeeafad7663a8de662153a956c3/gdal/data/osmconf.ini#L65-L71">here</a>),
+above), <code>z_order</code> (check the code <a href="https://github.com/OSGeo/gdal/blob/94c80fdb5659541b522896b094c732200044b17c/ogr/ogrsf_frmts/osm/data/osmconf.ini#L70-L76">here</a>),
 and <code>other_tags</code>.</p>
 <p>Please note that the argument <code>extra_tags</code> is always
 ignored (with a warning message), if you are using an ad-hoc
@@ -1183,7 +1183,7 @@ ignored (with a warning message), if you are using an ad-hoc
 <span id="cb45-6"><a href="#cb45-6" tabindex="-1"></a><span class="co">#&gt; 0...10...20...30...40...50...60...70...80...90...100 - done.</span></span>
 <span id="cb45-7"><a href="#cb45-7" tabindex="-1"></a><span class="co">#&gt; Finished the vectortranslate operations on the input file!</span></span>
 <span id="cb45-8"><a href="#cb45-8" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb45-9"><a href="#cb45-9" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb45-9"><a href="#cb45-9" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb45-10"><a href="#cb45-10" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 191 features and 4 fields</span></span>
 <span id="cb45-11"><a href="#cb45-11" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb45-12"><a href="#cb45-12" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1211,7 +1211,7 @@ performing vectortranslate operations:</p>
 <span id="cb46-6"><a href="#cb46-6" tabindex="-1"></a><span class="co">#&gt; 0...10...20...30...40...50...60...70...80...90...100 - done.</span></span>
 <span id="cb46-7"><a href="#cb46-7" tabindex="-1"></a><span class="co">#&gt; Finished the vectortranslate operations on the input file!</span></span>
 <span id="cb46-8"><a href="#cb46-8" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb46-9"><a href="#cb46-9" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb46-9"><a href="#cb46-9" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb46-10"><a href="#cb46-10" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 189 features and 9 fields</span></span>
 <span id="cb46-11"><a href="#cb46-11" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb46-12"><a href="#cb46-12" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1240,7 +1240,7 @@ that will be passed to <code>ogr2ogr:</code></p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>my_vectortranslate <span class="ot">=</span> <span class="fu">c</span>(</span>
 <span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a>  <span class="st">&quot;-t_srs&quot;</span>, <span class="st">&quot;EPSG:27700&quot;</span>, </span>
 <span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>  <span class="co"># SQL-like query where we select only the following fields</span></span>
-<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>  <span class="st">&quot;-select&quot;</span>, <span class="st">&quot;osm_id, highway&quot;</span>, </span>
+<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>  <span class="st">&quot;-select&quot;</span>, <span class="st">&quot;osm_id,highway&quot;</span>, </span>
 <span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a>  <span class="co"># SQL-like query where we filter only the features where highway is equal to footway or cycleway</span></span>
 <span id="cb47-6"><a href="#cb47-6" tabindex="-1"></a>  <span class="st">&quot;-where&quot;</span>, <span class="st">&quot;highway IN (&#39;footway&#39;, &#39;cycleway&#39;)&quot;</span></span>
 <span id="cb47-7"><a href="#cb47-7" tabindex="-1"></a>)</span></code></pre></div>
@@ -1252,7 +1252,7 @@ that will be passed to <code>ogr2ogr:</code></p>
 <span id="cb48-5"><a href="#cb48-5" tabindex="-1"></a><span class="co">#&gt; 0...10...20...30...40...50...60...70...80...90...100 - done.</span></span>
 <span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a><span class="co">#&gt; Finished the vectortranslate operations on the input file!</span></span>
 <span id="cb48-7"><a href="#cb48-7" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb48-8"><a href="#cb48-8" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb48-8"><a href="#cb48-8" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb48-9"><a href="#cb48-9" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 76 features and 2 fields</span></span>
 <span id="cb48-10"><a href="#cb48-10" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb48-11"><a href="#cb48-11" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1274,7 +1274,7 @@ and 8GB of RAM using Windows 10:</p>
 <span id="cb49-4"><a href="#cb49-4" tabindex="-1"></a><span class="co"># 2. Define the vectortranslate options</span></span>
 <span id="cb49-5"><a href="#cb49-5" tabindex="-1"></a>my_vectortranslate <span class="ot">=</span> <span class="fu">c</span>(</span>
 <span id="cb49-6"><a href="#cb49-6" tabindex="-1"></a>  <span class="co"># SQL-like query where we select only the features where highway in (primary, secondary, tertiary)</span></span>
-<span id="cb49-7"><a href="#cb49-7" tabindex="-1"></a>  <span class="st">&quot;-select&quot;</span>, <span class="st">&quot;osm_id, highway&quot;</span>,</span>
+<span id="cb49-7"><a href="#cb49-7" tabindex="-1"></a>  <span class="st">&quot;-select&quot;</span>, <span class="st">&quot;osm_id,highway&quot;</span>,</span>
 <span id="cb49-8"><a href="#cb49-8" tabindex="-1"></a>  <span class="st">&quot;-where&quot;</span>, <span class="st">&quot;highway IN (&#39;primary&#39;, &#39;secondary&#39;, &#39;tertiary&#39;)&quot;</span></span>
 <span id="cb49-9"><a href="#cb49-9" tabindex="-1"></a>)</span>
 <span id="cb49-10"><a href="#cb49-10" tabindex="-1"></a></span>
@@ -1313,7 +1313,7 @@ via the argument <code>boundary</code>:</p>
 <span id="cb51-8"><a href="#cb51-8" tabindex="-1"></a><span class="co">#&gt; 0...10...20...30...40...50...60...70...80...90...100 - done.</span></span>
 <span id="cb51-9"><a href="#cb51-9" tabindex="-1"></a><span class="co">#&gt; Finished the vectortranslate operations on the input file!</span></span>
 <span id="cb51-10"><a href="#cb51-10" tabindex="-1"></a><span class="co">#&gt; Reading layer `lines&#39; from data source </span></span>
-<span id="cb51-11"><a href="#cb51-11" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb51-11"><a href="#cb51-11" tabindex="-1"></a><span class="co">#&gt;   `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb51-12"><a href="#cb51-12" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 5 features and 9 fields</span></span>
 <span id="cb51-13"><a href="#cb51-13" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb51-14"><a href="#cb51-14" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
@@ -1461,7 +1461,7 @@ rerunning the <code>oe_vectortranslate()</code> function::</p>
 <span id="cb55-26"><a href="#cb55-26" tabindex="-1"></a><span class="co">#&gt; The chosen file was already detected in the download directory. Skip downloading.</span></span>
 <span id="cb55-27"><a href="#cb55-27" tabindex="-1"></a><span class="co">#&gt; The corresponding gpkg file was already detected. Skip vectortranslate operations.</span></span>
 <span id="cb55-28"><a href="#cb55-28" tabindex="-1"></a><span class="co">#&gt; Reading query `SELECT *, hstore_get_value(other_tags, &#39;bicycle&#39;) AS bicycle FROM lines&#39;</span></span>
-<span id="cb55-29"><a href="#cb55-29" tabindex="-1"></a><span class="co">#&gt; from data source `C:\Users\user\AppData\Local\Temp\RtmpakFTXh\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
+<span id="cb55-29"><a href="#cb55-29" tabindex="-1"></a><span class="co">#&gt; from data source `C:\Users\user\AppData\Local\Temp\RtmpWoxx5k\test_its-example.gpkg&#39; using driver `GPKG&#39;</span></span>
 <span id="cb55-30"><a href="#cb55-30" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 189 features and 10 fields</span></span>
 <span id="cb55-31"><a href="#cb55-31" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
 <span id="cb55-32"><a href="#cb55-32" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>

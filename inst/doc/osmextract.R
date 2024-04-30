@@ -32,12 +32,12 @@ library(sf)
 par(mar = rep(0.1, 4))
 plot(st_geometry(geofabrik_zones))
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  par(mar = rep(0.1, 4))
 #  plot(st_geometry(spData::world), xlim = c(-2, 10), ylim = c(35, 60))
 #  plot(st_geometry(bbbike_zones), xlim = c(-2, 10), ylim = c(35, 60), col = "darkred", add = TRUE)
 
-## ---- echo = FALSE, out.width="80%"---------------------------------------------------------------
+## ----echo = FALSE, out.width="80%"----------------------------------------------------------------
 knitr::include_graphics(
   path = "../man/figures/94461461-772e4d00-01ba-11eb-950c-804ad177729f.png"
 )
@@ -50,7 +50,7 @@ oe_match("Leeds", provider = "bbbike")
 oe_match("RU", match_by = "iso3166_1_alpha2")
 oe_match("US", match_by = "iso3166_1_alpha2")
 
-## ---- error = TRUE--------------------------------------------------------------------------------
+## ----error = TRUE---------------------------------------------------------------------------------
 oe_match("PS", match_by = "iso3166_1_alpha2", quiet = TRUE)
 oe_match("IL", match_by = "iso3166_1_alpha2", quiet = TRUE)
 
@@ -70,7 +70,7 @@ lapply(oe_match_pattern("Israel", full_row = TRUE), function(x) x[, 1:3])
 oe_match_pattern("Valencia")
 oe_match("Comunitat Valenciana", provider = "openstreetmap_fr")
 
-## ---- error = TRUE--------------------------------------------------------------------------------
+## ----error = TRUE---------------------------------------------------------------------------------
 # erroneous match
 oe_match("Milan", max_string_dist = 2)
 
@@ -79,7 +79,7 @@ oe_match("Leeds")
 oe_match("London")
 oe_match("Vatican City")
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  oe_match("Milan")
 #  #> No exact match found for place = Milan and provider = geofabrik. Best match is Iran.
 #  #> Checking the other providers.
@@ -94,7 +94,7 @@ oe_match("Vatican City")
 milan_duomo = sf::st_sfc(sf::st_point(c(1514924, 5034552)), crs = 3003)
 oe_match(milan_duomo)
 
-## ---- error = TRUE--------------------------------------------------------------------------------
+## ----error = TRUE---------------------------------------------------------------------------------
 yak = c(-120.51084, 46.60156)
 oe_match(yak, level = 1, quiet = TRUE)
 oe_match(yak, level = 2, quiet = TRUE) # the default
@@ -124,7 +124,7 @@ oe_match(c(9.1916, 45.4650)) # Duomo di Milano using EPSG: 4326
 # ITS stands for Institute for Transport Studies: https://environment.leeds.ac.uk/transport
 (its_details = oe_match("ITS Leeds"))
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  oe_download(
 #    file_url = its_details$url,
 #    file_size = its_details$file_size,
@@ -132,14 +132,14 @@ oe_match(c(9.1916, 45.4650)) # Duomo di Milano using EPSG: 4326
 #    download_directory = # path-to-a-directory
 #  )
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  usethis::edit_r_environ()
 #  # Add a line containing: OSMEXT_DOWNLOAD_DIRECTORY=/path/for/osm/data
 
 ## -------------------------------------------------------------------------------------------------
 oe_download_directory()
 
-## ---- include=FALSE-------------------------------------------------------------------------------
+## ----include=FALSE--------------------------------------------------------------------------------
 its_pbf = file.path(oe_download_directory(), "test_its-example.osm.pbf")
 file.copy(
   from = system.file("its-example.osm.pbf", package = "osmextract"), 
@@ -147,7 +147,7 @@ file.copy(
   overwrite = TRUE
 )
 
-## ---- eval = 2------------------------------------------------------------------------------------
+## ----eval = 2-------------------------------------------------------------------------------------
 its_pbf = oe_download(its_details$url, provider = "test", quiet = TRUE) # skipped online, run it locally
 list.files(oe_download_directory(), pattern = "pbf|gpkg")
 
@@ -180,7 +180,7 @@ oe_read(its_gpkg)
 ## -------------------------------------------------------------------------------------------------
 oe_read(its_pbf, skip_vectortranslate = TRUE, quiet = FALSE)
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  my_url = "https://github.com/ropensci/osmextract/raw/master/inst/its-example.osm.pbf"
 #  oe_read(my_url, provider = "test", quiet = TRUE, force_download = TRUE, force_vectortranslate = TRUE)
 
@@ -189,7 +189,7 @@ its_lines = oe_get("ITS Leeds")
 par(mar = rep(0.1, 4))
 plot(its_lines["highway"], lwd = 2, key.pos = NULL)
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  oe_get("Andorra")
 #  oe_get("Leeds")
 #  oe_get("Goa")
@@ -248,7 +248,7 @@ oe_get("ITS Leeds", vectortranslate_options = c("-t_srs", "EPSG:27700"), quiet =
 my_vectortranslate = c(
   "-t_srs", "EPSG:27700", 
   # SQL-like query where we select only the following fields
-  "-select", "osm_id, highway", 
+  "-select", "osm_id,highway", 
   # SQL-like query where we filter only the features where highway is equal to footway or cycleway
   "-where", "highway IN ('footway', 'cycleway')"
 )
@@ -256,14 +256,14 @@ my_vectortranslate = c(
 ## -------------------------------------------------------------------------------------------------
 its_leeds = oe_get("ITS Leeds", vectortranslate_options = my_vectortranslate, quiet = FALSE)
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  # 1. Download the data and skip gpkg conversion
 #  oe_get("Portugal", download_only = TRUE, skip_vectortranslate = TRUE)
 #  
 #  # 2. Define the vectortranslate options
 #  my_vectortranslate = c(
 #    # SQL-like query where we select only the features where highway in (primary, secondary, tertiary)
-#    "-select", "osm_id, highway",
+#    "-select", "osm_id,highway",
 #    "-where", "highway IN ('primary', 'secondary', 'tertiary')"
 #  )
 #  
@@ -274,7 +274,7 @@ its_leeds = oe_get("ITS Leeds", vectortranslate_options = my_vectortranslate, qu
 #  #  user  system elapsed
 #  # 17.39    9.93   25.53
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  system.time({
 #    portugal2 = oe_get("Portugal", quiet = FALSE, force_vectortranslate = TRUE)
 #    portugal2 = portugal2 %>%
@@ -293,7 +293,7 @@ its_bbox = st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 , ym
 
 its_small = oe_get ("ITS Leeds", boundary = its_bbox)
 
-## ---- echo = FALSE, out.width="85%"---------------------------------------------------------------
+## ----echo = FALSE, out.width="85%"----------------------------------------------------------------
 its_leeds = oe_get("ITS Leeds", force_vectortranslate = TRUE, quiet = TRUE)
 
 par(mar = rep(0.1, 4))
@@ -301,7 +301,7 @@ plot(st_geometry(its_leeds), reset = FALSE, col = "grey")
 plot(st_geometry(its_small), lwd = 3, col = "darkred", add = TRUE)
 plot(st_as_sfc(st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 , ymax = 53.808094), crs = 4326)), add = TRUE, lwd = 3)
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  # 1. Define the polygonal boundary
 #  la_valletta = st_sfc(st_point(c(456113.1, 3972853)), crs = 32633) %>%
 #    st_buffer(5000)
@@ -335,7 +335,7 @@ plot(st_as_sfc(st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 
 #  #    user  system elapsed
 #  #    0.55    0.11    0.61
 
-## ---- echo = FALSE, eval = FALSE------------------------------------------------------------------
+## ----echo = FALSE, eval = FALSE-------------------------------------------------------------------
 #  malta_regular = oe_get("Malta", force_vectortranslate = TRUE) %>%
 #    dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) %>%
 #    st_transform(32633)
@@ -346,10 +346,10 @@ plot(st_as_sfc(st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 
 #  plot(st_boundary(la_valletta), add = TRUE, lwd = 2)
 #  plot(st_geometry(malta_small), add = TRUE, col = "darkred", lwd = 2)
 
-## ---- echo=FALSE, out.width="80%", fig.align="center"---------------------------------------------
+## ----echo=FALSE, out.width="80%", fig.align="center"----------------------------------------------
 knitr::include_graphics("../man/figures/104240598-9d6fb400-545c-11eb-93b5-3563908ff4af.png")
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  system.time({
 #    malta_crop = oe_get("Malta", force_vectortranslate = TRUE) %>%
 #      dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) %>%
@@ -359,7 +359,7 @@ knitr::include_graphics("../man/figures/104240598-9d6fb400-545c-11eb-93b5-356390
 #  #> user  system elapsed
 #  #> 4.61    1.67    7.69
 
-## ---- echo = FALSE, eval = FALSE------------------------------------------------------------------
+## ----echo = FALSE, eval = FALSE-------------------------------------------------------------------
 #  malta_regular = oe_get("Malta", force_vectortranslate = TRUE) %>%
 #    dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) %>%
 #    st_transform(32633)
@@ -369,10 +369,10 @@ knitr::include_graphics("../man/figures/104240598-9d6fb400-545c-11eb-93b5-356390
 #  plot(st_boundary(la_valletta), add = TRUE, lwd = 2)
 #  plot(st_geometry(malta_crop), add = TRUE, col = "darkred", lwd = 2)
 
-## ---- echo=FALSE, out.width="80%", fig.align='center'---------------------------------------------
+## ----echo=FALSE, out.width="80%", fig.align='center'----------------------------------------------
 knitr::include_graphics("../man/figures/104241581-32bf7800-545e-11eb-896b-3f535dd1af5e.png")
 
-## ---- eval = FALSE--------------------------------------------------------------------------------
+## ----eval = FALSE---------------------------------------------------------------------------------
 #  malta_small = oe_get(
 #    "Malta",
 #    query = "
@@ -383,7 +383,7 @@ knitr::include_graphics("../man/figures/104241581-32bf7800-545e-11eb-896b-3f535d
 #    force_vectortranslate = TRUE
 #  )
 
-## ---- echo = FALSE, eval = FALSE------------------------------------------------------------------
+## ----echo = FALSE, eval = FALSE-------------------------------------------------------------------
 #  malta_regular = oe_get("Malta", force_vectortranslate = TRUE) %>%
 #    dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified'))
 #  
@@ -392,7 +392,7 @@ knitr::include_graphics("../man/figures/104241581-32bf7800-545e-11eb-896b-3f535d
 #  plot(st_boundary(la_valletta) %>% st_transform(4326), add = TRUE, lwd = 2)
 #  plot(st_geometry(malta_small), col = "darkred", add = TRUE, lwd = 2)
 
-## ---- echo = FALSE, fig.align="center", out.width="80%"-------------------------------------------
+## ----echo = FALSE, fig.align="center", out.width="80%"--------------------------------------------
 knitr::include_graphics("../man/figures/104243054-4966ce80-5460-11eb-951b-ca1ce9d09f33.png")
 
 ## -------------------------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ colnames(oe_get(
   query = "SELECT *, hstore_get_value(other_tags, 'bicycle') AS bicycle FROM lines"
 ))
 
-## ---- include=FALSE-----------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 # reset par, options, and download directory
 options(user_options)
 par(user_par)
