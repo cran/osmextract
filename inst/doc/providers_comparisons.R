@@ -14,7 +14,7 @@ library(osmextract)
 library(sf)
 
 ## ----eval = FALSE-------------------------------------------------------------
-#  lima = tmaptools::geocode_OSM("Lima, Peru")$coords
+# lima = tmaptools::geocode_OSM("Lima, Peru")$coords
 
 ## ----echo = FALSE-------------------------------------------------------------
 lima = c(-77.0365256, -12.0621065)
@@ -60,9 +60,9 @@ ids_3 = openstreetmap_fr_zones$parent %in% openstreetmap_fr_zones$id[ids_2]
 plot(openstreetmap_fr_zones[ids_2 | ids_3, "name"], key.pos = NULL, main = NULL)
 
 ## ----eval = FALSE-------------------------------------------------------------
-#  par(mar = rep(0, 4))
-#  plot(sf::st_geometry(spData::world))
-#  plot(sf::st_geometry(bbbike_zones), border = "darkred", add = TRUE, lwd = 3)
+# par(mar = rep(0, 4))
+# plot(sf::st_geometry(spData::world))
+# plot(sf::st_geometry(bbbike_zones), border = "darkred", add = TRUE, lwd = 3)
 
 ## ----echo = FALSE, out.width="100%"-------------------------------------------
 knitr::include_graphics(

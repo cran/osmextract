@@ -51,8 +51,8 @@ files using \code{oe_find()}.}
 \item{layer}{Which \code{layer} should be read in? Typically \code{points}, \code{lines}
 (the default), \code{multilinestrings}, \code{multipolygons} or \code{other_relations}. If
 you specify an ad-hoc query using the argument \code{query} (see introductory
-vignette and examples), then \code{oe_get()} and \code{oe_read()} will read the layer
-specified in the query and ignore \code{layer}. See also
+vignette and examples), then \code{\link[=oe_get]{oe_get()}} and \code{\link[=oe_read]{oe_read()}} will read the layer
+specified in the query and ignore \code{layer} argument. See also
 \href{https://github.com/ropensci/osmextract/issues/122}{#122}.}
 
 \item{values}{Logical. If \code{TRUE}, then function returns the keys and the
@@ -95,7 +95,7 @@ items, namely a \code{key} and a \code{value}. The conversion between \code{.osm
 be explicitly added to the \code{.gpkg} file. All the other keys are
 automatically stored using an \code{other_tags} field with a syntax compatible
 with the PostgreSQL HSTORE type. See
-\href{https://gdal.org/drivers/vector/osm.html#driver-capabilities}{here} for
+\href{https://gdal.org/en/stable/drivers/vector/osm.html#driver-capabilities}{here} for
 more details.
 
 When the argument \code{values} is \code{TRUE}, then the function returns a named
