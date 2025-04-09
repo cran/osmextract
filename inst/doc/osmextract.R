@@ -128,6 +128,17 @@ oe_match(c(9.1916, 45.4650)) # Duomo di Milano using EPSG: 4326
 # ITS stands for Institute for Transport Studies: https://environment.leeds.ac.uk/transport
 (its_details = oe_match("ITS Leeds"))
 
+## -------------------------------------------------------------------------------------------------
+oe_match("Italy", quiet = TRUE)$url
+oe_match("Italy", version = "200101", quiet = TRUE)$url # OSM data up to January 1st 2020
+oe_match(c(9.1916, 45.4650), version = "210101", quiet = TRUE)$url
+
+## -------------------------------------------------------------------------------------------------
+oe_match("Leeds", provider = "bbbike", version = "200101")
+
+## -------------------------------------------------------------------------------------------------
+oe_match("Leeds", version = "200101")
+
 ## ----eval = FALSE---------------------------------------------------------------------------------
 # oe_download(
 #   file_url = its_details$url,

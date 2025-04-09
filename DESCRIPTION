@@ -1,9 +1,9 @@
 Package: osmextract
 Type: Package
 Title: Download and Import Open Street Map Data Extracts
-Version: 0.5.2
+Version: 0.5.3
 Authors@R: c(
-    person("Andrea", "Gilardi", email = "andrea.gilardi@polimi.it", role=c("aut", "cre"),
+    person("Andrea", "Gilardi", email = "andrea.gilardi@unimib.it", role=c("aut", "cre"),
       comment = c(ORCID = "0000-0002-9424-7439")),
     person("Robin", "Lovelace", role = c("aut"),
       comment = c(ORCID = "0000-0001-5679-6536")),
@@ -31,7 +31,7 @@ Language: en-GB
 Config/testthat/edition: 3
 Config/build/copy-method: link
 NeedsCompilation: no
-Packaged: 2024-11-22 14:09:33 UTC; user
+Packaged: 2025-04-09 15:10:21 UTC; andre
 Author: Andrea Gilardi [aut, cre] (<https://orcid.org/0000-0002-9424-7439>),
   Robin Lovelace [aut] (<https://orcid.org/0000-0001-5679-6536>),
   Barry Rowlingson [ctb] (<https://orcid.org/0000-0002-8586-6625>),
@@ -41,6 +41,6 @@ Author: Andrea Gilardi [aut, cre] (<https://orcid.org/0000-0002-9424-7439>),
   Nicholas Potter [rev] (Nicholas reviewed the package (v. 0.1) for
     rOpenSci, see
     <https://github.com/ropensci/software-review/issues/395>)
-Maintainer: Andrea Gilardi <andrea.gilardi@polimi.it>
+Maintainer: Andrea Gilardi <andrea.gilardi@unimib.it>
 Repository: CRAN
-Date/Publication: 2024-11-22 14:30:02 UTC
+Date/Publication: 2025-04-09 16:40:06 UTC
