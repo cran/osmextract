@@ -147,12 +147,12 @@ oe_match("Leeds", version = "200101")
 #   download_directory = # path-to-a-directory
 # )
 
+## -------------------------------------------------------------------------------------------------
+oe_download_directory()
+
 ## ----eval = FALSE---------------------------------------------------------------------------------
 # usethis::edit_r_environ()
 # # Add a line containing: OSMEXT_DOWNLOAD_DIRECTORY=/path/for/osm/data
-
-## -------------------------------------------------------------------------------------------------
-oe_download_directory()
 
 ## ----include=FALSE--------------------------------------------------------------------------------
 its_pbf = file.path(oe_download_directory(), "test_its-example.osm.pbf")
@@ -181,6 +181,12 @@ its_gpkg = oe_vectortranslate(its_pbf, layer = "points")
 st_layers(its_gpkg, do_count = TRUE)
 
 ## -------------------------------------------------------------------------------------------------
+(default_config <- get_default_osmconf_ini())
+
+## ----echo=FALSE-----------------------------------------------------------------------------------
+default_config_lines <- readLines(default_config)
+
+## -------------------------------------------------------------------------------------------------
 oe_get_keys(its_gpkg, layer = "lines")
 
 ## -------------------------------------------------------------------------------------------------
@@ -201,13 +207,15 @@ oe_read(its_pbf, skip_vectortranslate = TRUE, quiet = FALSE)
 
 ## -------------------------------------------------------------------------------------------------
 its_lines = oe_get("ITS Leeds")
+
+## -------------------------------------------------------------------------------------------------
 par(mar = rep(0.1, 4))
 plot(its_lines["highway"], lwd = 2, key.pos = NULL)
 
 ## ----eval = FALSE---------------------------------------------------------------------------------
 # oe_get("Andorra")
 # oe_get("Leeds")
-# oe_get("Goa")
+# oe_get("Goa") # A state in India
 # oe_get("Malta", layer = "points", quiet = FALSE)
 # oe_match("RU", match_by = "iso3166_1_alpha2", quiet = FALSE)
 # 
@@ -292,8 +300,8 @@ its_leeds = oe_get("ITS Leeds", vectortranslate_options = my_vectortranslate, qu
 ## ----eval = FALSE---------------------------------------------------------------------------------
 # system.time({
 #   portugal2 = oe_get("Portugal", quiet = FALSE, force_vectortranslate = TRUE)
-#   portugal2 = portugal2 %>%
-#     dplyr::select(osm_id, highway) %>%
+#   portugal2 = portugal2 |>
+#     dplyr::select(osm_id, highway) |>
 #     dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary'))
 # })
 # #   user  system elapsed
@@ -303,10 +311,16 @@ its_leeds = oe_get("ITS Leeds", vectortranslate_options = my_vectortranslate, qu
 # #> TRUE
 
 ## -------------------------------------------------------------------------------------------------
-its_bbox = st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 , ymax = 53.808094), crs = 4326) %>% 
+its_bbox = st_bbox(
+  c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 , ymax = 53.808094), 
+  crs = 4326
+) |>  
   st_as_sfc()
 
-its_small = oe_get ("ITS Leeds", boundary = its_bbox)
+its_small = oe_get("ITS Leeds", boundary = its_bbox)
+
+## -------------------------------------------------------------------------------------------------
+its_small = oe_get(its_bbox, provider = "test") 
 
 ## ----echo = FALSE, out.width="85%"----------------------------------------------------------------
 its_leeds = oe_get("ITS Leeds", force_vectortranslate = TRUE, quiet = TRUE)
@@ -318,7 +332,7 @@ plot(st_as_sfc(st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 
 
 ## ----eval = FALSE---------------------------------------------------------------------------------
 # # 1. Define the polygonal boundary
-# la_valletta = st_sfc(st_point(c(456113.1, 3972853)), crs = 32633) %>%
+# la_valletta = st_sfc(st_point(c(456113.1, 3972853)), crs = 32633) |>
 #   st_buffer(5000)
 # 
 # # 2. Define the vectortranslate options
@@ -334,7 +348,7 @@ plot(st_as_sfc(st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 
 # 
 # # 4. Read-in data
 # system.time({
-#   oe_get("Malta", vectortranslate_options = my_vectortranslate, boundary = la_valletta, boundary_type = "clipsrc")
+#   oe_get(la_valletta, vectortranslate_options = my_vectortranslate, boundary_type = "clipsrc")
 # })
 # # The input place was matched with: Malta
 # # The chosen file was already detected in the download directory. Skip downloading.
@@ -351,8 +365,8 @@ plot(st_as_sfc(st_bbox(c(xmin = -1.559184 , ymin = 53.807739 , xmax = -1.557375 
 # #    0.55    0.11    0.61
 
 ## ----echo = FALSE, eval = FALSE-------------------------------------------------------------------
-# malta_regular = oe_get("Malta", force_vectortranslate = TRUE) %>%
-#   dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) %>%
+# malta_regular = oe_get("Malta", force_vectortranslate = TRUE) |>
+#   dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) |>
 #   st_transform(32633)
 # malta_small = oe_get("Malta", vectortranslate_options = my_vectortranslate, boundary = la_valletta, boundary_type = "clipsrc")
 # 
@@ -366,17 +380,17 @@ knitr::include_graphics("../man/figures/104240598-9d6fb400-545c-11eb-93b5-356390
 
 ## ----eval = FALSE---------------------------------------------------------------------------------
 # system.time({
-#   malta_crop = oe_get("Malta", force_vectortranslate = TRUE) %>%
-#     dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) %>%
-#     st_transform(32633) %>%
+#   malta_crop = oe_get("Malta", force_vectortranslate = TRUE) |>
+#     dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) |>
+#     st_transform(32633) |>
 #     st_crop(la_valletta)
 # })
 # #> user  system elapsed
 # #> 4.61    1.67    7.69
 
 ## ----echo = FALSE, eval = FALSE-------------------------------------------------------------------
-# malta_regular = oe_get("Malta", force_vectortranslate = TRUE) %>%
-#   dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) %>%
+# malta_regular = oe_get("Malta", force_vectortranslate = TRUE) |>
+#   dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified')) |>
 #   st_transform(32633)
 # 
 # par(mar = rep(0.1, 4))
@@ -399,12 +413,12 @@ knitr::include_graphics("../man/figures/104241581-32bf7800-545e-11eb-896b-3f535d
 # )
 
 ## ----echo = FALSE, eval = FALSE-------------------------------------------------------------------
-# malta_regular = oe_get("Malta", force_vectortranslate = TRUE) %>%
+# malta_regular = oe_get("Malta", force_vectortranslate = TRUE) |>
 #   dplyr::filter(highway %in% c('primary', 'secondary', 'tertiary', 'unclassified'))
 # 
 # par(mar = rep(0.1, 4))
 # plot(st_geometry(malta_regular), col = "grey", reset = FALSE)
-# plot(st_boundary(la_valletta) %>% st_transform(4326), add = TRUE, lwd = 2)
+# plot(st_boundary(la_valletta) |> st_transform(4326), add = TRUE, lwd = 2)
 # plot(st_geometry(malta_small), col = "darkred", add = TRUE, lwd = 2)
 
 ## ----echo = FALSE, fig.align="center", out.width="80%"--------------------------------------------

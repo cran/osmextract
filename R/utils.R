@@ -20,7 +20,7 @@ check_layer_provider = function(layer, provider) {
       call. = FALSE
     )
   }
-  invisible(0)
+  invisible()
 }
 
 check_version <- function(version, provider) {
@@ -79,10 +79,10 @@ my_st_read <- function(dsn, layer, quiet, ...) {
 
 #' Return the download directory used by the package
 #'
-#' By default, the download directory is equal to `tempdir()`. You can set a
-#' persistent download directory by adding the following command to your
-#' `.Renviron` file (e.g. with `edit_r_environ` function in `usethis` package):
-#' `OSMEXT_DOWNLOAD_DIRECTORY=/path/to/osm/data`.
+#' By default, the download directory is equal to `tools::R_user_dir("osmextract", "data")`.
+#' You can set a different persistent or temporary download directory by adding
+#' the following command to your `.Renviron` file (e.g. with `edit_r_environ`
+#' function in `usethis` package): `OSMEXT_DOWNLOAD_DIRECTORY=/path/where/to/save/osm/data`.
 #'
 #' @return A character vector representing the path for the download directory
 #'   used by the package.
@@ -91,9 +91,13 @@ my_st_read <- function(dsn, layer, quiet, ...) {
 #' @examples
 #' oe_download_directory()
 oe_download_directory = function() {
-  download_directory = Sys.getenv("OSMEXT_DOWNLOAD_DIRECTORY", tempdir())
+  default_dir = tools::R_user_dir("osmextract", "data")
+  download_directory = Sys.getenv("OSMEXT_DOWNLOAD_DIRECTORY", default_dir)
   if (!dir.exists(download_directory)) {
-    dir.create(download_directory) # nocov
+    # recursive = TRUE is required since the output of tools::R_user_dir may be a
+    # directory which is nested inside another missing directory that also must
+    # be created.
+    dir.create(download_directory, recursive = TRUE) # nocov
   }
   normalizePath(download_directory)
 }
@@ -108,7 +112,7 @@ oe_message <- function(..., quiet, .subclass) {
     )
     message(msg)
   }
-  invisible(0)
+  invisible()
 }
 
 # Extract the names in ... safely. I cannot use ...names() since that was
@@ -144,18 +148,15 @@ extract_dots_names_safely <- function(...) {
   )
 }
 
-# See https://adv-r.hadley.nz/conditions.html#signalling. Code taken from that
-# book (and I think that's possible since the code is released with MIT
-# license). The main benefit of this approach is that I can test the class of
-# the error instead of the message.
+# See https://adv-r.hadley.nz/conditions.html#signalling and ?condition. The
+# main benefit of this approach is that I can test the class of the error
+# instead of the message.
 oe_stop <- function(.subclass, message, call = NULL, ...) {
-  err <- structure(
-    list(
-      message = message,
-      call = call,
-      ...
-    ),
-    class = c(.subclass, "error", "condition")
+  err <- errorCondition(
+    message = message,
+    ...,
+    class = .subclass,
+    call = call
   )
   stop(err)
 }
